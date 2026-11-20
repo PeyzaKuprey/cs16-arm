@@ -1,7 +1,7 @@
 From d36f3a43abf9c5bc0befcdf7627e5c6640822eda Mon Sep 17 00:00:00 2001
 From: cs16-arm <cs16-arm@local>
 Date: Fri, 20 Nov 2026 23:27:28 +0200
-Subject: [PATCH 1/2] arm: build for armv7-a / aarch64
+Subject: [PATCH 1/3] arm: build for armv7-a / aarch64
 
 - CMakeLists: no -m32/-msse3 on ARM, PIC for the shared object,
   arch-suffixed output (reunion_mm_armv7.so / reunion_mm_aarch64.so),
@@ -335,6 +335,241 @@ index 0000000..3e5b799
 +#define APP_VERSION_FLAGS 0x0L
 +
 +#endif // __APPVERSION_H__
+-- 
+2.56.1
+
+
+From 2c6441c1ae365c435e2523dfa4294d661a844d41 Mon Sep 17 00:00:00 2001
+From: cs16-arm <cs16-arm@local>
+Date: Sat, 21 Nov 2026 00:36:08 +0200
+Subject: [PATCH 2/3] arm: skip the appversion regeneration target without the
+ sibling scaffolding
+
+appversion.sh lives in an untracked ../version/ dir and reads a sibling
+ReHLDS checkout; a fresh checkout of ReUnion alone has neither, so the
+custom target broke the build.  The pinned reunion/version/appversion.h
+(the file the code actually includes) is enough.
+---
+ reunion/CMakeLists.txt | 12 ++++++++----
+ 1 file changed, 8 insertions(+), 4 deletions(-)
+
+diff --git a/reunion/CMakeLists.txt b/reunion/CMakeLists.txt
+index c366ed2..034a5d5 100644
+--- a/reunion/CMakeLists.txt
++++ b/reunion/CMakeLists.txt
+@@ -149,12 +149,16 @@ elseif (CMAKE_SYSTEM_PROCESSOR MATCHES "armv7|^arm$")
+ 	set(REUNION_OUTPUT_NAME reunion_mm_armv7)
+ endif()
+ 
+-if (NOT TARGET appversion)
+-	add_custom_target(appversion DEPENDS COMMAND "${PROJECT_SOURCE_DIR}/../version/appversion.sh" "${PROJECT_SOURCE_DIR}/..")
++# appversion.sh regenerates ../version/appversion.h from a sibling ReHLDS
++# checkout; when that scaffolding isn't present (fresh checkout of this repo
++# alone), rely on the pinned reunion/version/appversion.h instead.
++if (EXISTS "${PROJECT_SOURCE_DIR}/../version/appversion.sh")
++	if (NOT TARGET appversion)
++		add_custom_target(appversion DEPENDS COMMAND "${PROJECT_SOURCE_DIR}/../version/appversion.sh" "${PROJECT_SOURCE_DIR}/..")
++	endif()
++	add_dependencies(reunion appversion)
+ endif()
+ 
+-add_dependencies(reunion appversion)
+-
+ target_include_directories(reunion PRIVATE
+ 	${PROJECT_SRC_DIR}
+ 	${PROJECT_HLSDK_DIR}
+-- 
+2.56.1
+
+
+From 797038c043b296b70c206e8d0bdc60241e4b706b Mon Sep 17 00:00:00 2001
+From: cs16-arm <cs16-arm@local>
+Date: Sat, 21 Nov 2026 01:29:21 +0200
+Subject: [PATCH 3/3] bionic: dl is inside libc on Android, skip stub lib
+
+---
+ reunion/CMakeLists.txt |   2 +-
+ version/appversion.sh  | 158 +++++++++++++++++++++++++++++++++++++++++
+ 2 files changed, 159 insertions(+), 1 deletion(-)
+ create mode 100755 version/appversion.sh
+
+diff --git a/reunion/CMakeLists.txt b/reunion/CMakeLists.txt
+index 034a5d5..cf65856 100644
+--- a/reunion/CMakeLists.txt
++++ b/reunion/CMakeLists.txt
+@@ -182,7 +182,7 @@ target_sources(reunion PRIVATE
+ )
+ 
+ target_link_libraries(reunion PRIVATE
+-	dl
++	$<$<NOT:$<BOOL:${ANDROID}>>:dl>
+ )
+ 
+ if (USE_STATIC_LIBSTDC)
+diff --git a/version/appversion.sh b/version/appversion.sh
+new file mode 100755
+index 0000000..ffafce2
+--- /dev/null
++++ b/version/appversion.sh
+@@ -0,0 +1,158 @@
++#!/bin/bash
++
++init()
++{
++	SOURCE_DIR=$@
++	GIT_DIR=$SOURCE_DIR
++	VERSION_FILE=$SOURCE_DIR/rehlds/version/version.h
++	APPVERSION_FILE=$SOURCE_DIR/rehlds/version/appversion.h
++
++	if test -z "`git --version`"; then
++		echo "Please install git client"
++		echo "sudo apt-get install git"
++		exit -1
++	fi
++
++	# Read old version
++	if [ -e $APPVERSION_FILE ]; then
++		OLD_VERSION=$(cat $APPVERSION_FILE | grep -wi '#define APP_VERSION' | sed -e 's/#define APP_VERSION[ \t\r\n\v\f]\+\(.*\)/\1/i' -e 's/\r//g')
++		if [ $? -ne 0 ]; then
++			OLD_VERSION=""
++		else
++			# Remove quotes
++			OLD_VERSION=$(echo $OLD_VERSION | xargs)
++		fi
++	fi
++
++	# Get major, minor and maintenance information from gradle.properties
++	MAJOR=$(cat $VERSION_FILE | grep -wi 'VERSION_MAJOR' | sed -e 's/.*VERSION_MAJOR.*[^0-9]\([0-9][0-9]*\).*/\1/i' -e 's/\r//g')
++	if [ $? -ne 0 -o "$MAJOR" = "" ]; then
++		MAJOR=0
++	fi
++
++	MINOR=$(cat $VERSION_FILE | grep -wi 'VERSION_MINOR' | sed -e 's/.*VERSION_MINOR.*[^0-9]\([0-9][0-9]*\).*/\1/i' -e 's/\r//g')
++	if [ $? -ne 0 -o "$MINOR" = "" ]; then
++		MINOR=0
++	fi
++
++	MAINTENANCE=$(cat $VERSION_FILE | grep -i 'VERSION_MAINTENANCE' | sed -e 's/.*VERSION_MAINTENANCE.*[^0-9]\([0-9][0-9]*\).*/\1/i' -e 's/\r//g')
++	if [ $? -ne 0 -o "$MAINTENANCE" = "" ]; then
++		MAINTENANCE=0
++	fi
++
++	BRANCH_NAME=$(git -C "$GIT_DIR/" rev-parse --abbrev-ref HEAD)
++	if [ $? -ne 0 -o "$BRANCH_NAME" = "" ]; then
++		BRANCH_NAME=master
++	fi
++
++	COMMIT_COUNT=$(git -C "$GIT_DIR/" rev-list --count $BRANCH_NAME)
++	if [ $? -ne 0 -o "$COMMIT_COUNT" = "" ]; then
++		COMMIT_COUNT=0
++	fi
++
++	#
++	# Configure remote url repository
++	#
++	# Get remote name by current branch
++	BRANCH_REMOTE=$(git -C "$GIT_DIR/" config branch.$BRANCH_NAME.remote)
++	if [ $? -ne 0 -o "$BRANCH_REMOTE" = "" ]; then
++		BRANCH_REMOTE=origin
++	fi
++
++	# Get commit id
++	COMMIT_SHA=$(git -C "$GIT_DIR/" rev-parse --verify HEAD)
++	COMMIT_SHA=${COMMIT_SHA:0:7}
++
++	# Get remote url
++	COMMIT_URL=$(git -C "$GIT_DIR/" config remote.$BRANCH_REMOTE.url)
++
++	URL_CONSTRUCT=0
++
++	if [[ "$COMMIT_URL" == *"git@"* ]]; then
++		URL_CONSTRUCT=1
++
++		# Strip prefix 'git@'
++		COMMIT_URL=${COMMIT_URL#git@}
++
++		# Strip postfix '.git'
++		COMMIT_URL=${COMMIT_URL%.git}
++
++		# Replace ':' to '/'
++		COMMIT_URL=${COMMIT_URL/:/\/}
++
++	elif [[ "$COMMIT_URL" == *"https://"* ]]; then
++		URL_CONSTRUCT=1
++
++		# Strip prefix 'https://'
++		COMMIT_URL=${COMMIT_URL#https://}
++
++		# Strip postfix '.git'
++		COMMIT_URL=${COMMIT_URL%.git}
++	fi
++
++	if test "$URL_CONSTRUCT" -eq 1; then
++		# Append extra string
++		if [[ "$COMMIT_URL" == *"bitbucket.org"* ]]; then
++			COMMIT_URL=$(echo https://$COMMIT_URL/commits/)
++		else
++			COMMIT_URL=$(echo https://$COMMIT_URL/commit/)
++		fi
++	fi
++
++	#
++	# Detect local modifications
++	#
++	if [ `git -C "$GIT_DIR/" ls-files -m | wc -l` = 0 ]; then
++		MODIFIED=
++	else
++		MODIFIED=+m
++	fi
++
++	NEW_VERSION="$MAJOR.$MINOR.$MAINTENANCE.$COMMIT_COUNT-dev$MODIFIED"
++
++	# Update appversion.h if version has changed or modifications/mixed revisions detected
++	if [ "$NEW_VERSION" != "$OLD_VERSION" ]; then
++		update_appversion
++	fi
++}
++
++update_appversion()
++{
++	day=$(date +%d)
++	year=$(date +%Y)
++	hours=$(date +%H:%M:%S)
++	month=$(LANG=en_us_88591; date +"%b")
++
++	# Write appversion.h
++	echo Updating appversion.h, new version is '"'$NEW_VERSION'"', the old one was $OLD_VERSION
++
++	echo -e "#ifndef __APPVERSION_H__\r">"$APPVERSION_FILE"
++	echo -e "#define __APPVERSION_H__\r">>"$APPVERSION_FILE"
++	echo -e "\r">>"$APPVERSION_FILE"
++	echo -e "//\r">>"$APPVERSION_FILE"
++	echo -e "// This file is generated automatically.\r">>"$APPVERSION_FILE"
++	echo -e "// Don't edit it.\r">>"$APPVERSION_FILE"
++	echo -e "//\r">>"$APPVERSION_FILE"
++	echo -e "\r">>"$APPVERSION_FILE"
++	echo -e "// Version defines\r">>"$APPVERSION_FILE"
++	echo -e '#define APP_VERSION "'$NEW_VERSION'"\r'>>"$APPVERSION_FILE"
++
++	echo -e "#define APP_VERSION_C $MAJOR,$MINOR,$MAINTENANCE,$COMMIT_COUNT\r">>"$APPVERSION_FILE"
++	echo -e '#define APP_VERSION_STRD "'$MAJOR.$MINOR.$MAINTENANCE.$COMMIT_COUNT'"\r'>>"$APPVERSION_FILE"
++	echo -e "#define APP_VERSION_FLAGS 0x0L\r">>"$APPVERSION_FILE"
++	echo -e "\r">>"$APPVERSION_FILE"
++	echo -e '#define APP_COMMIT_DATE "'$month $day $year'"\r'>>"$APPVERSION_FILE"
++	echo -e '#define APP_COMMIT_TIME "'$hours'"\r'>>"$APPVERSION_FILE"
++	echo -e "\r">>"$APPVERSION_FILE"
++
++	echo -e '#define APP_COMMIT_SHA "'$COMMIT_SHA'"\r'>>"$APPVERSION_FILE"
++	echo -e '#define APP_COMMIT_URL "'$COMMIT_URL'"\r'>>"$APPVERSION_FILE"
++	echo -e "\r">>"$APPVERSION_FILE"
++	echo -e "#endif //__APPVERSION_H__\r">>"$APPVERSION_FILE"
++}
++
++# Initialise
++init $*
++
++# Exit normally
++exit 0
 -- 
 2.56.1
 

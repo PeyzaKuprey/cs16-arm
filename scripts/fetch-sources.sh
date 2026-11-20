@@ -51,15 +51,16 @@ for entry in "${PROJECTS[@]}"; do
     echo "== $name: arm branch exists, resetting to patch state"
     git -C "$dest" checkout -q arm
     git -C "$dest" reset -q --hard $sha
+    git -C "$dest" clean -qfdx
   else
     git -C "$dest" checkout -q -b arm
   fi
-  if ls "$PATCHES/$patchdir/"*.patch > /dev/null 2>&1; then
+  if ls "$PATCHES/$patchdir/"*.mbox > /dev/null 2>&1; then
     echo "== $name: applying $patchdir"
-    if ! git -C "$dest" am -q "$PATCHES/$patchdir/"*.patch 2>/dev/null; then
+    if ! git -C "$dest" am -q "$PATCHES/$patchdir/"*.mbox 2>/dev/null; then
       git -C "$dest" am -q --abort 2>/dev/null || true
       # stateless fallback (identical tree, keeps authorship via commit below)
-      git -C "$dest" apply --index "$PATCHES/$patchdir/"*.patch \
+      git -C "$dest" apply --index "$PATCHES/$patchdir/"*.mbox \
         && git -C "$dest" commit -q -m "arm: port build to armv7-a / aarch64 (patchset $patchdir)" \
         || { echo "$name: patch apply FAILED"; fail=1; continue; }
     fi

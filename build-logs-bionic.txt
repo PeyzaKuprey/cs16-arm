@@ -1,0 +1,1021 @@
++++ dirname build/build-bionic.sh
+++ cd build/..
+++ pwd
++ ROOT=/home/noname/my-project/cs16-arm-release
++ LOGS=/home/noname/my-project/cs16-arm-release/build/logs
++ mkdir -p /home/noname/my-project/cs16-arm-release/build/logs
++ cd /home/noname/my-project/cs16-arm-release
++ export ANDROID_NDK=/home/noname/android/ndk
++ ANDROID_NDK=/home/noname/android/ndk
++ TCA=/home/noname/my-project/cs16-arm-release/build/toolchain-bionic-aarch64.cmake
++ TCV=/home/noname/my-project/cs16-arm-release/build/toolchain-bionic-armv7.cmake
++ fail=0
++ build_cmake rehlds-bionic-aarch64 src/buildchain/ReHLDS build/rehlds-bionic-aarch64 /home/noname/my-project/cs16-arm-release/build/toolchain-bionic-aarch64.cmake
++ local name=rehlds-bionic-aarch64 src=src/buildchain/ReHLDS bdir=build/rehlds-bionic-aarch64 tc=/home/noname/my-project/cs16-arm-release/build/toolchain-bionic-aarch64.cmake
++ shift 4
++ cmake -S src/buildchain/ReHLDS -B build/rehlds-bionic-aarch64 -DCMAKE_TOOLCHAIN_FILE=/home/noname/my-project/cs16-arm-release/build/toolchain-bionic-aarch64.cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_POLICY_VERSION_MINIMUM=3.5 -DUSE_STATIC_LIBSTDC=OFF
++ cmake --build build/rehlds-bionic-aarch64 -j4
++ echo 'rehlds-bionic-aarch64 FAILED'
+rehlds-bionic-aarch64 FAILED
++ fail=1
++ build_cmake metamod-bionic-aarch64 src/buildchain/Metamod-R build/metamod-bionic-aarch64 /home/noname/my-project/cs16-arm-release/build/toolchain-bionic-aarch64.cmake
++ local name=metamod-bionic-aarch64 src=src/buildchain/Metamod-R bdir=build/metamod-bionic-aarch64 tc=/home/noname/my-project/cs16-arm-release/build/toolchain-bionic-aarch64.cmake
++ shift 4
++ cmake -S src/buildchain/Metamod-R -B build/metamod-bionic-aarch64 -DCMAKE_TOOLCHAIN_FILE=/home/noname/my-project/cs16-arm-release/build/toolchain-bionic-aarch64.cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_POLICY_VERSION_MINIMUM=3.5 -DUSE_STATIC_LIBSTDC=OFF
++ cmake --build build/metamod-bionic-aarch64 -j4
++ echo 'metamod-bionic-aarch64 FAILED'
+metamod-bionic-aarch64 FAILED
++ fail=1
++ build_cmake regamedll-bionic-aarch64 src/ReGameDLL_CS build/regamedll-bionic-aarch64 /home/noname/my-project/cs16-arm-release/build/toolchain-bionic-aarch64.cmake -DX64BITS=ON
++ local name=regamedll-bionic-aarch64 src=src/ReGameDLL_CS bdir=build/regamedll-bionic-aarch64 tc=/home/noname/my-project/cs16-arm-release/build/toolchain-bionic-aarch64.cmake
++ shift 4
++ cmake -S src/ReGameDLL_CS -B build/regamedll-bionic-aarch64 -DCMAKE_TOOLCHAIN_FILE=/home/noname/my-project/cs16-arm-release/build/toolchain-bionic-aarch64.cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_POLICY_VERSION_MINIMUM=3.5 -DUSE_STATIC_LIBSTDC=OFF -DX64BITS=ON
++ cmake --build build/regamedll-bionic-aarch64 -j4
++ echo 'regamedll-bionic-aarch64 FAILED'
+regamedll-bionic-aarch64 FAILED
++ fail=1
++ build_cmake reunion-bionic-aarch64 src/ReUnion/reunion build/reunion-bionic-aarch64 /home/noname/my-project/cs16-arm-release/build/toolchain-bionic-aarch64.cmake
++ local name=reunion-bionic-aarch64 src=src/ReUnion/reunion bdir=build/reunion-bionic-aarch64 tc=/home/noname/my-project/cs16-arm-release/build/toolchain-bionic-aarch64.cmake
++ shift 4
++ cmake -S src/ReUnion/reunion -B build/reunion-bionic-aarch64 -DCMAKE_TOOLCHAIN_FILE=/home/noname/my-project/cs16-arm-release/build/toolchain-bionic-aarch64.cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_POLICY_VERSION_MINIMUM=3.5 -DUSE_STATIC_LIBSTDC=OFF
++ cmake --build build/reunion-bionic-aarch64 -j4
++ echo 'reunion-bionic-aarch64 FAILED'
+reunion-bionic-aarch64 FAILED
++ fail=1
++ mkdir -p build/rehlmaster-bionic-aarch64
++ /home/noname/android/ndk/toolchains/llvm/prebuilt/linux-x86_64/bin/aarch64-linux-android24-clang++ -std=c++11 -w -O3 -s -shared -fno-stack-protector -fno-strict-aliasing -fno-strict-overflow -fvisibility=hidden -Isrc/rehlmaster/src -Isrc/rehlmaster/dep/rehlsdk/common -Isrc/rehlmaster/dep/rehlsdk/dlls -Isrc/rehlmaster/dep/rehlsdk/engine -Isrc/rehlmaster/dep/rehlsdk/public -Isrc/rehlmaster/dep/metamod src/rehlmaster/src/dllapi.cpp src/rehlmaster/src/engine_api.cpp src/rehlmaster/src/ex_rehlds_api.cpp src/rehlmaster/src/h_export.cpp src/rehlmaster/src/meta_api.cpp src/rehlmaster/src/public_amalgamation.cpp src/rehlmaster/src/rehlmaster.cpp src/rehlmaster/src/server_info.cpp src/rehlmaster/src/sizebuf.cpp src/rehlmaster/src/utils.cpp -o build/rehlmaster-bionic-aarch64/rehlmaster.so
+ld.lld: error: relocation R_AARCH64_ADR_PREL_PG_HI21 cannot be used against symbol 'CreateInterface'; recompile with -fPIC
+>>> defined in /tmp/public_amalgamation-a44c71.o
+>>> referenced by public_amalgamation.cpp
+>>>               /tmp/public_amalgamation-a44c71.o:(Sys_GetFactoryThis())
+
+ld.lld: error: relocation R_AARCH64_ADD_ABS_LO12_NC cannot be used against symbol 'CreateInterface'; recompile with -fPIC
+>>> defined in /tmp/public_amalgamation-a44c71.o
+>>> referenced by public_amalgamation.cpp
+>>>               /tmp/public_amalgamation-a44c71.o:(Sys_GetFactoryThis())
+clang-17: error: linker command failed with exit code 1 (use -v to see invocation)
++ echo 'REHLMASTER BIONIC AARCH64 FAILED'
+REHLMASTER BIONIC AARCH64 FAILED
++ fail=1
++ mkdir -p build/hlmaster-bionic-aarch64
++ /home/noname/android/ndk/toolchains/llvm/prebuilt/linux-x86_64/bin/aarch64-linux-android24-clang -O3 -w -s -fvisibility=hidden -fno-strict-aliasing -fno-strict-overflow src/hlmaster/hlmaster.c -o build/hlmaster-bionic-aarch64/hlmaster
++ build_cmake rehlds-bionic-armv7 src/buildchain/ReHLDS build/rehlds-bionic-armv7 /home/noname/my-project/cs16-arm-release/build/toolchain-bionic-armv7.cmake
++ local name=rehlds-bionic-armv7 src=src/buildchain/ReHLDS bdir=build/rehlds-bionic-armv7 tc=/home/noname/my-project/cs16-arm-release/build/toolchain-bionic-armv7.cmake
++ shift 4
++ cmake -S src/buildchain/ReHLDS -B build/rehlds-bionic-armv7 -DCMAKE_TOOLCHAIN_FILE=/home/noname/my-project/cs16-arm-release/build/toolchain-bionic-armv7.cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_POLICY_VERSION_MINIMUM=3.5 -DUSE_STATIC_LIBSTDC=OFF
++ cmake --build build/rehlds-bionic-armv7 -j4
++ echo 'rehlds-bionic-armv7 FAILED'
+rehlds-bionic-armv7 FAILED
++ fail=1
++ build_cmake metamod-bionic-armv7 src/buildchain/Metamod-R build/metamod-bionic-armv7 /home/noname/my-project/cs16-arm-release/build/toolchain-bionic-armv7.cmake -DMETAMOD_CPP_CALLBACKS=ON
++ local name=metamod-bionic-armv7 src=src/buildchain/Metamod-R bdir=build/metamod-bionic-armv7 tc=/home/noname/my-project/cs16-arm-release/build/toolchain-bionic-armv7.cmake
++ shift 4
++ cmake -S src/buildchain/Metamod-R -B build/metamod-bionic-armv7 -DCMAKE_TOOLCHAIN_FILE=/home/noname/my-project/cs16-arm-release/build/toolchain-bionic-armv7.cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_POLICY_VERSION_MINIMUM=3.5 -DUSE_STATIC_LIBSTDC=OFF -DMETAMOD_CPP_CALLBACKS=ON
++ cmake --build build/metamod-bionic-armv7 -j4
++ echo 'metamod-bionic-armv7 FAILED'
+metamod-bionic-armv7 FAILED
++ fail=1
++ build_cmake regamedll-bionic-armv7 src/ReGameDLL_CS build/regamedll-bionic-armv7 /home/noname/my-project/cs16-arm-release/build/toolchain-bionic-armv7.cmake
++ local name=regamedll-bionic-armv7 src=src/ReGameDLL_CS bdir=build/regamedll-bionic-armv7 tc=/home/noname/my-project/cs16-arm-release/build/toolchain-bionic-armv7.cmake
++ shift 4
++ cmake -S src/ReGameDLL_CS -B build/regamedll-bionic-armv7 -DCMAKE_TOOLCHAIN_FILE=/home/noname/my-project/cs16-arm-release/build/toolchain-bionic-armv7.cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_POLICY_VERSION_MINIMUM=3.5 -DUSE_STATIC_LIBSTDC=OFF
++ cmake --build build/regamedll-bionic-armv7 -j4
++ echo 'regamedll-bionic-armv7 FAILED'
+regamedll-bionic-armv7 FAILED
++ fail=1
++ build_cmake reunion-bionic-armv7 src/ReUnion/reunion build/reunion-bionic-armv7 /home/noname/my-project/cs16-arm-release/build/toolchain-bionic-armv7.cmake
++ local name=reunion-bionic-armv7 src=src/ReUnion/reunion bdir=build/reunion-bionic-armv7 tc=/home/noname/my-project/cs16-arm-release/build/toolchain-bionic-armv7.cmake
++ shift 4
++ cmake -S src/ReUnion/reunion -B build/reunion-bionic-armv7 -DCMAKE_TOOLCHAIN_FILE=/home/noname/my-project/cs16-arm-release/build/toolchain-bionic-armv7.cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_POLICY_VERSION_MINIMUM=3.5 -DUSE_STATIC_LIBSTDC=OFF
++ cmake --build build/reunion-bionic-armv7 -j4
++ echo 'reunion-bionic-armv7 FAILED'
+reunion-bionic-armv7 FAILED
++ fail=1
++ mkdir -p build/rehlmaster-bionic-armv7
++ /home/noname/android/ndk/toolchains/llvm/prebuilt/linux-x86_64/bin/armv7a-linux-androideabi24-clang++ -std=c++11 -w -O3 -s -shared -fno-stack-protector -fno-strict-aliasing -fno-strict-overflow -fvisibility=hidden -Isrc/rehlmaster/src -Isrc/rehlmaster/dep/rehlsdk/common -Isrc/rehlmaster/dep/rehlsdk/dlls -Isrc/rehlmaster/dep/rehlsdk/engine -Isrc/rehlmaster/dep/rehlsdk/public -Isrc/rehlmaster/dep/metamod src/rehlmaster/src/dllapi.cpp src/rehlmaster/src/engine_api.cpp src/rehlmaster/src/ex_rehlds_api.cpp src/rehlmaster/src/h_export.cpp src/rehlmaster/src/meta_api.cpp src/rehlmaster/src/public_amalgamation.cpp src/rehlmaster/src/rehlmaster.cpp src/rehlmaster/src/server_info.cpp src/rehlmaster/src/sizebuf.cpp src/rehlmaster/src/utils.cpp -o build/rehlmaster-bionic-armv7/rehlmaster.so
+In file included from src/rehlmaster/src/dllapi.cpp:3:
+In file included from src/rehlmaster/src/server_info.h:5:
+In file included from src/rehlmaster/src/ex_rehlds_api.h:3:
+In file included from src/rehlmaster/dep/rehlsdk/engine/rehlds_api.h:31:
+In file included from src/rehlmaster/dep/rehlsdk/engine/rehlds_interfaces.h:39:
+In file included from src/rehlmaster/dep/rehlsdk/public/FileSystem.h:31:
+In file included from src/rehlmaster/dep/rehlsdk/public/interface.h:18:
+In file included from src/rehlmaster/dep/rehlsdk/engine/osconfig.h:93:
+/home/noname/android/ndk/toolchains/llvm/prebuilt/linux-x86_64/lib/clang/17/include/smmintrin.h:14:2: error: "This header is only meant to be used on x86 and x64 architecture"
+#error "This header is only meant to be used on x86 and x64 architecture"
+ ^
+In file included from src/rehlmaster/src/dllapi.cpp:3:
+In file included from src/rehlmaster/src/server_info.h:5:
+In file included from src/rehlmaster/src/ex_rehlds_api.h:3:
+In file included from src/rehlmaster/dep/rehlsdk/engine/rehlds_api.h:31:
+In file included from src/rehlmaster/dep/rehlsdk/engine/rehlds_interfaces.h:39:
+In file included from src/rehlmaster/dep/rehlsdk/public/FileSystem.h:31:
+In file included from src/rehlmaster/dep/rehlsdk/public/interface.h:18:
+In file included from src/rehlmaster/dep/rehlsdk/engine/osconfig.h:93:
+In file included from /home/noname/android/ndk/toolchains/llvm/prebuilt/linux-x86_64/lib/clang/17/include/smmintrin.h:17:
+/home/noname/android/ndk/toolchains/llvm/prebuilt/linux-x86_64/lib/clang/17/include/tmmintrin.h:14:2: error: "This header is only meant to be used on x86 and x64 architecture"
+#error "This header is only meant to be used on x86 and x64 architecture"
+ ^
+In file included from src/rehlmaster/src/dllapi.cpp:3:
+In file included from src/rehlmaster/src/server_info.h:5:
+In file included from src/rehlmaster/src/ex_rehlds_api.h:3:
+In file included from src/rehlmaster/dep/rehlsdk/engine/rehlds_api.h:31:
+In file included from src/rehlmaster/dep/rehlsdk/engine/rehlds_interfaces.h:39:
+In file included from src/rehlmaster/dep/rehlsdk/public/FileSystem.h:31:
+In file included from src/rehlmaster/dep/rehlsdk/public/interface.h:18:
+In file included from src/rehlmaster/dep/rehlsdk/engine/osconfig.h:93:
+In file included from /home/noname/android/ndk/toolchains/llvm/prebuilt/linux-x86_64/lib/clang/17/include/smmintrin.h:17:
+In file included from /home/noname/android/ndk/toolchains/llvm/prebuilt/linux-x86_64/lib/clang/17/include/tmmintrin.h:17:
+/home/noname/android/ndk/toolchains/llvm/prebuilt/linux-x86_64/lib/clang/17/include/pmmintrin.h:14:2: error: "This header is only meant to be used on x86 and x64 architecture"
+#error "This header is only meant to be used on x86 and x64 architecture"
+ ^
+In file included from src/rehlmaster/src/dllapi.cpp:3:
+In file included from src/rehlmaster/src/server_info.h:5:
+In file included from src/rehlmaster/src/ex_rehlds_api.h:3:
+In file included from src/rehlmaster/dep/rehlsdk/engine/rehlds_api.h:31:
+In file included from src/rehlmaster/dep/rehlsdk/engine/rehlds_interfaces.h:39:
+In file included from src/rehlmaster/dep/rehlsdk/public/FileSystem.h:31:
+In file included from src/rehlmaster/dep/rehlsdk/public/interface.h:18:
+In file included from src/rehlmaster/dep/rehlsdk/engine/osconfig.h:93:
+In file included from /home/noname/android/ndk/toolchains/llvm/prebuilt/linux-x86_64/lib/clang/17/include/smmintrin.h:17:
+In file included from /home/noname/android/ndk/toolchains/llvm/prebuilt/linux-x86_64/lib/clang/17/include/tmmintrin.h:17:
+In file included from /home/noname/android/ndk/toolchains/llvm/prebuilt/linux-x86_64/lib/clang/17/include/pmmintrin.h:17:
+/home/noname/android/ndk/toolchains/llvm/prebuilt/linux-x86_64/lib/clang/17/include/emmintrin.h:14:2: error: "This header is only meant to be used on x86 and x64 architecture"
+#error "This header is only meant to be used on x86 and x64 architecture"
+ ^
+In file included from src/rehlmaster/src/dllapi.cpp:3:
+In file included from src/rehlmaster/src/server_info.h:5:
+In file included from src/rehlmaster/src/ex_rehlds_api.h:3:
+In file included from src/rehlmaster/dep/rehlsdk/engine/rehlds_api.h:31:
+In file included from src/rehlmaster/dep/rehlsdk/engine/rehlds_interfaces.h:39:
+In file included from src/rehlmaster/dep/rehlsdk/public/FileSystem.h:31:
+In file included from src/rehlmaster/dep/rehlsdk/public/interface.h:18:
+In file included from src/rehlmaster/dep/rehlsdk/engine/osconfig.h:93:
+In file included from /home/noname/android/ndk/toolchains/llvm/prebuilt/linux-x86_64/lib/clang/17/include/smmintrin.h:17:
+In file included from /home/noname/android/ndk/toolchains/llvm/prebuilt/linux-x86_64/lib/clang/17/include/tmmintrin.h:17:
+In file included from /home/noname/android/ndk/toolchains/llvm/prebuilt/linux-x86_64/lib/clang/17/include/pmmintrin.h:17:
+In file included from /home/noname/android/ndk/toolchains/llvm/prebuilt/linux-x86_64/lib/clang/17/include/emmintrin.h:17:
+/home/noname/android/ndk/toolchains/llvm/prebuilt/linux-x86_64/lib/clang/17/include/xmmintrin.h:14:2: error: "This header is only meant to be used on x86 and x64 architecture"
+#error "This header is only meant to be used on x86 and x64 architecture"
+ ^
+In file included from src/rehlmaster/src/dllapi.cpp:3:
+In file included from src/rehlmaster/src/server_info.h:5:
+In file included from src/rehlmaster/src/ex_rehlds_api.h:3:
+In file included from src/rehlmaster/dep/rehlsdk/engine/rehlds_api.h:31:
+In file included from src/rehlmaster/dep/rehlsdk/engine/rehlds_interfaces.h:39:
+In file included from src/rehlmaster/dep/rehlsdk/public/FileSystem.h:31:
+In file included from src/rehlmaster/dep/rehlsdk/public/interface.h:18:
+In file included from src/rehlmaster/dep/rehlsdk/engine/osconfig.h:93:
+In file included from /home/noname/android/ndk/toolchains/llvm/prebuilt/linux-x86_64/lib/clang/17/include/smmintrin.h:17:
+In file included from /home/noname/android/ndk/toolchains/llvm/prebuilt/linux-x86_64/lib/clang/17/include/tmmintrin.h:17:
+In file included from /home/noname/android/ndk/toolchains/llvm/prebuilt/linux-x86_64/lib/clang/17/include/pmmintrin.h:17:
+In file included from /home/noname/android/ndk/toolchains/llvm/prebuilt/linux-x86_64/lib/clang/17/include/emmintrin.h:17:
+In file included from /home/noname/android/ndk/toolchains/llvm/prebuilt/linux-x86_64/lib/clang/17/include/xmmintrin.h:17:
+/home/noname/android/ndk/toolchains/llvm/prebuilt/linux-x86_64/lib/clang/17/include/mmintrin.h:14:2: error: "This header is only meant to be used on x86 and x64 architecture"
+#error "This header is only meant to be used on x86 and x64 architecture"
+ ^
+/home/noname/android/ndk/toolchains/llvm/prebuilt/linux-x86_64/lib/clang/17/include/mmintrin.h:37:5: error: use of undeclared identifier '__builtin_ia32_emms'; did you mean '__builtin_isless'?
+    __builtin_ia32_emms();
+    ^
+/home/noname/android/ndk/toolchains/llvm/prebuilt/linux-x86_64/bin/../sysroot/usr/include/c++/v1/math.h:507:10: note: '__builtin_isless' declared here
+  return __builtin_isless((type)__x, (type)__y);
+         ^
+In file included from src/rehlmaster/src/dllapi.cpp:3:
+In file included from src/rehlmaster/src/server_info.h:5:
+In file included from src/rehlmaster/src/ex_rehlds_api.h:3:
+In file included from src/rehlmaster/dep/rehlsdk/engine/rehlds_api.h:31:
+In file included from src/rehlmaster/dep/rehlsdk/engine/rehlds_interfaces.h:39:
+In file included from src/rehlmaster/dep/rehlsdk/public/FileSystem.h:31:
+In file included from src/rehlmaster/dep/rehlsdk/public/interface.h:18:
+In file included from src/rehlmaster/dep/rehlsdk/engine/osconfig.h:93:
+In file included from /home/noname/android/ndk/toolchains/llvm/prebuilt/linux-x86_64/lib/clang/17/include/smmintrin.h:17:
+In file included from /home/noname/android/ndk/toolchains/llvm/prebuilt/linux-x86_64/lib/clang/17/include/tmmintrin.h:17:
+In file included from /home/noname/android/ndk/toolchains/llvm/prebuilt/linux-x86_64/lib/clang/17/include/pmmintrin.h:17:
+In file included from /home/noname/android/ndk/toolchains/llvm/prebuilt/linux-x86_64/lib/clang/17/include/emmintrin.h:17:
+In file included from /home/noname/android/ndk/toolchains/llvm/prebuilt/linux-x86_64/lib/clang/17/include/xmmintrin.h:17:
+/home/noname/android/ndk/toolchains/llvm/prebuilt/linux-x86_64/lib/clang/17/include/mmintrin.h:37:25: error: too few arguments to function call, expected 2, have 0
+    __builtin_ia32_emms();
+    ~~~~~~~~~~~~~~~~~~~~^
+/home/noname/android/ndk/toolchains/llvm/prebuilt/linux-x86_64/lib/clang/17/include/mmintrin.h:54:19: error: use of undeclared identifier '__builtin_ia32_vec_init_v2si'
+    return (__m64)__builtin_ia32_vec_init_v2si(__i, 0);
+                  ^
+/home/noname/android/ndk/toolchains/llvm/prebuilt/linux-x86_64/lib/clang/17/include/mmintrin.h:71:12: error: use of undeclared identifier '__builtin_ia32_vec_ext_v2si'
+    return __builtin_ia32_vec_ext_v2si((__v2si)__m, 0);
+           ^
+/home/noname/android/ndk/toolchains/llvm/prebuilt/linux-x86_64/lib/clang/17/include/mmintrin.h:133:19: error: use of undeclared identifier '__builtin_ia32_packsswb'
+    return (__m64)__builtin_ia32_packsswb((__v4hi)__m1, (__v4hi)__m2);
+                  ^
+/home/noname/android/ndk/toolchains/llvm/prebuilt/linux-x86_64/lib/clang/17/include/mmintrin.h:163:19: error: use of undeclared identifier '__builtin_ia32_packssdw'
+    return (__m64)__builtin_ia32_packssdw((__v2si)__m1, (__v2si)__m2);
+                  ^
+/home/noname/android/ndk/toolchains/llvm/prebuilt/linux-x86_64/lib/clang/17/include/mmintrin.h:193:19: error: use of undeclared identifier '__builtin_ia32_packuswb'
+    return (__m64)__builtin_ia32_packuswb((__v4hi)__m1, (__v4hi)__m2);
+                  ^
+/home/noname/android/ndk/toolchains/llvm/prebuilt/linux-x86_64/lib/clang/17/include/mmintrin.h:220:19: error: use of undeclared identifier '__builtin_ia32_punpckhbw'
+    return (__m64)__builtin_ia32_punpckhbw((__v8qi)__m1, (__v8qi)__m2);
+                  ^
+/home/noname/android/ndk/toolchains/llvm/prebuilt/linux-x86_64/lib/clang/17/include/mmintrin.h:243:19: error: use of undeclared identifier '__builtin_ia32_punpckhwd'
+    return (__m64)__builtin_ia32_punpckhwd((__v4hi)__m1, (__v4hi)__m2);
+                  ^
+/home/noname/android/ndk/toolchains/llvm/prebuilt/linux-x86_64/lib/clang/17/include/mmintrin.h:264:19: error: use of undeclared identifier '__builtin_ia32_punpckhdq'
+    return (__m64)__builtin_ia32_punpckhdq((__v2si)__m1, (__v2si)__m2);
+                  ^
+/home/noname/android/ndk/toolchains/llvm/prebuilt/linux-x86_64/lib/clang/17/include/mmintrin.h:291:19: error: use of undeclared identifier '__builtin_ia32_punpcklbw'
+    return (__m64)__builtin_ia32_punpcklbw((__v8qi)__m1, (__v8qi)__m2);
+                  ^
+/home/noname/android/ndk/toolchains/llvm/prebuilt/linux-x86_64/lib/clang/17/include/mmintrin.h:314:19: error: use of undeclared identifier '__builtin_ia32_punpcklwd'
+    return (__m64)__builtin_ia32_punpcklwd((__v4hi)__m1, (__v4hi)__m2);
+                  ^
+/home/noname/android/ndk/toolchains/llvm/prebuilt/linux-x86_64/lib/clang/17/include/mmintrin.h:335:19: error: use of undeclared identifier '__builtin_ia32_punpckldq'
+    return (__m64)__builtin_ia32_punpckldq((__v2si)__m1, (__v2si)__m2);
+                  ^
+fatal error: too many errors emitted, stopping now [-ferror-limit=]
+20 errors generated.
+In file included from src/rehlmaster/src/ex_rehlds_api.cpp:3:
+In file included from src/rehlmaster/src/ex_rehlds_api.h:3:
+In file included from src/rehlmaster/dep/rehlsdk/engine/rehlds_api.h:31:
+In file included from src/rehlmaster/dep/rehlsdk/engine/rehlds_interfaces.h:39:
+In file included from src/rehlmaster/dep/rehlsdk/public/FileSystem.h:31:
+In file included from src/rehlmaster/dep/rehlsdk/public/interface.h:18:
+In file included from src/rehlmaster/dep/rehlsdk/engine/osconfig.h:93:
+/home/noname/android/ndk/toolchains/llvm/prebuilt/linux-x86_64/lib/clang/17/include/smmintrin.h:14:2: error: "This header is only meant to be used on x86 and x64 architecture"
+#error "This header is only meant to be used on x86 and x64 architecture"
+ ^
+In file included from src/rehlmaster/src/ex_rehlds_api.cpp:3:
+In file included from src/rehlmaster/src/ex_rehlds_api.h:3:
+In file included from src/rehlmaster/dep/rehlsdk/engine/rehlds_api.h:31:
+In file included from src/rehlmaster/dep/rehlsdk/engine/rehlds_interfaces.h:39:
+In file included from src/rehlmaster/dep/rehlsdk/public/FileSystem.h:31:
+In file included from src/rehlmaster/dep/rehlsdk/public/interface.h:18:
+In file included from src/rehlmaster/dep/rehlsdk/engine/osconfig.h:93:
+In file included from /home/noname/android/ndk/toolchains/llvm/prebuilt/linux-x86_64/lib/clang/17/include/smmintrin.h:17:
+/home/noname/android/ndk/toolchains/llvm/prebuilt/linux-x86_64/lib/clang/17/include/tmmintrin.h:14:2: error: "This header is only meant to be used on x86 and x64 architecture"
+#error "This header is only meant to be used on x86 and x64 architecture"
+ ^
+In file included from src/rehlmaster/src/ex_rehlds_api.cpp:3:
+In file included from src/rehlmaster/src/ex_rehlds_api.h:3:
+In file included from src/rehlmaster/dep/rehlsdk/engine/rehlds_api.h:31:
+In file included from src/rehlmaster/dep/rehlsdk/engine/rehlds_interfaces.h:39:
+In file included from src/rehlmaster/dep/rehlsdk/public/FileSystem.h:31:
+In file included from src/rehlmaster/dep/rehlsdk/public/interface.h:18:
+In file included from src/rehlmaster/dep/rehlsdk/engine/osconfig.h:93:
+In file included from /home/noname/android/ndk/toolchains/llvm/prebuilt/linux-x86_64/lib/clang/17/include/smmintrin.h:17:
+In file included from /home/noname/android/ndk/toolchains/llvm/prebuilt/linux-x86_64/lib/clang/17/include/tmmintrin.h:17:
+/home/noname/android/ndk/toolchains/llvm/prebuilt/linux-x86_64/lib/clang/17/include/pmmintrin.h:14:2: error: "This header is only meant to be used on x86 and x64 architecture"
+#error "This header is only meant to be used on x86 and x64 architecture"
+ ^
+In file included from src/rehlmaster/src/ex_rehlds_api.cpp:3:
+In file included from src/rehlmaster/src/ex_rehlds_api.h:3:
+In file included from src/rehlmaster/dep/rehlsdk/engine/rehlds_api.h:31:
+In file included from src/rehlmaster/dep/rehlsdk/engine/rehlds_interfaces.h:39:
+In file included from src/rehlmaster/dep/rehlsdk/public/FileSystem.h:31:
+In file included from src/rehlmaster/dep/rehlsdk/public/interface.h:18:
+In file included from src/rehlmaster/dep/rehlsdk/engine/osconfig.h:93:
+In file included from /home/noname/android/ndk/toolchains/llvm/prebuilt/linux-x86_64/lib/clang/17/include/smmintrin.h:17:
+In file included from /home/noname/android/ndk/toolchains/llvm/prebuilt/linux-x86_64/lib/clang/17/include/tmmintrin.h:17:
+In file included from /home/noname/android/ndk/toolchains/llvm/prebuilt/linux-x86_64/lib/clang/17/include/pmmintrin.h:17:
+/home/noname/android/ndk/toolchains/llvm/prebuilt/linux-x86_64/lib/clang/17/include/emmintrin.h:14:2: error: "This header is only meant to be used on x86 and x64 architecture"
+#error "This header is only meant to be used on x86 and x64 architecture"
+ ^
+In file included from src/rehlmaster/src/ex_rehlds_api.cpp:3:
+In file included from src/rehlmaster/src/ex_rehlds_api.h:3:
+In file included from src/rehlmaster/dep/rehlsdk/engine/rehlds_api.h:31:
+In file included from src/rehlmaster/dep/rehlsdk/engine/rehlds_interfaces.h:39:
+In file included from src/rehlmaster/dep/rehlsdk/public/FileSystem.h:31:
+In file included from src/rehlmaster/dep/rehlsdk/public/interface.h:18:
+In file included from src/rehlmaster/dep/rehlsdk/engine/osconfig.h:93:
+In file included from /home/noname/android/ndk/toolchains/llvm/prebuilt/linux-x86_64/lib/clang/17/include/smmintrin.h:17:
+In file included from /home/noname/android/ndk/toolchains/llvm/prebuilt/linux-x86_64/lib/clang/17/include/tmmintrin.h:17:
+In file included from /home/noname/android/ndk/toolchains/llvm/prebuilt/linux-x86_64/lib/clang/17/include/pmmintrin.h:17:
+In file included from /home/noname/android/ndk/toolchains/llvm/prebuilt/linux-x86_64/lib/clang/17/include/emmintrin.h:17:
+/home/noname/android/ndk/toolchains/llvm/prebuilt/linux-x86_64/lib/clang/17/include/xmmintrin.h:14:2: error: "This header is only meant to be used on x86 and x64 architecture"
+#error "This header is only meant to be used on x86 and x64 architecture"
+ ^
+In file included from src/rehlmaster/src/ex_rehlds_api.cpp:3:
+In file included from src/rehlmaster/src/ex_rehlds_api.h:3:
+In file included from src/rehlmaster/dep/rehlsdk/engine/rehlds_api.h:31:
+In file included from src/rehlmaster/dep/rehlsdk/engine/rehlds_interfaces.h:39:
+In file included from src/rehlmaster/dep/rehlsdk/public/FileSystem.h:31:
+In file included from src/rehlmaster/dep/rehlsdk/public/interface.h:18:
+In file included from src/rehlmaster/dep/rehlsdk/engine/osconfig.h:93:
+In file included from /home/noname/android/ndk/toolchains/llvm/prebuilt/linux-x86_64/lib/clang/17/include/smmintrin.h:17:
+In file included from /home/noname/android/ndk/toolchains/llvm/prebuilt/linux-x86_64/lib/clang/17/include/tmmintrin.h:17:
+In file included from /home/noname/android/ndk/toolchains/llvm/prebuilt/linux-x86_64/lib/clang/17/include/pmmintrin.h:17:
+In file included from /home/noname/android/ndk/toolchains/llvm/prebuilt/linux-x86_64/lib/clang/17/include/emmintrin.h:17:
+In file included from /home/noname/android/ndk/toolchains/llvm/prebuilt/linux-x86_64/lib/clang/17/include/xmmintrin.h:17:
+/home/noname/android/ndk/toolchains/llvm/prebuilt/linux-x86_64/lib/clang/17/include/mmintrin.h:14:2: error: "This header is only meant to be used on x86 and x64 architecture"
+#error "This header is only meant to be used on x86 and x64 architecture"
+ ^
+/home/noname/android/ndk/toolchains/llvm/prebuilt/linux-x86_64/lib/clang/17/include/mmintrin.h:37:5: error: use of undeclared identifier '__builtin_ia32_emms'; did you mean '__builtin_isless'?
+    __builtin_ia32_emms();
+    ^
+/home/noname/android/ndk/toolchains/llvm/prebuilt/linux-x86_64/bin/../sysroot/usr/include/c++/v1/math.h:507:10: note: '__builtin_isless' declared here
+  return __builtin_isless((type)__x, (type)__y);
+         ^
+In file included from src/rehlmaster/src/ex_rehlds_api.cpp:3:
+In file included from src/rehlmaster/src/ex_rehlds_api.h:3:
+In file included from src/rehlmaster/dep/rehlsdk/engine/rehlds_api.h:31:
+In file included from src/rehlmaster/dep/rehlsdk/engine/rehlds_interfaces.h:39:
+In file included from src/rehlmaster/dep/rehlsdk/public/FileSystem.h:31:
+In file included from src/rehlmaster/dep/rehlsdk/public/interface.h:18:
+In file included from src/rehlmaster/dep/rehlsdk/engine/osconfig.h:93:
+In file included from /home/noname/android/ndk/toolchains/llvm/prebuilt/linux-x86_64/lib/clang/17/include/smmintrin.h:17:
+In file included from /home/noname/android/ndk/toolchains/llvm/prebuilt/linux-x86_64/lib/clang/17/include/tmmintrin.h:17:
+In file included from /home/noname/android/ndk/toolchains/llvm/prebuilt/linux-x86_64/lib/clang/17/include/pmmintrin.h:17:
+In file included from /home/noname/android/ndk/toolchains/llvm/prebuilt/linux-x86_64/lib/clang/17/include/emmintrin.h:17:
+In file included from /home/noname/android/ndk/toolchains/llvm/prebuilt/linux-x86_64/lib/clang/17/include/xmmintrin.h:17:
+/home/noname/android/ndk/toolchains/llvm/prebuilt/linux-x86_64/lib/clang/17/include/mmintrin.h:37:25: error: too few arguments to function call, expected 2, have 0
+    __builtin_ia32_emms();
+    ~~~~~~~~~~~~~~~~~~~~^
+/home/noname/android/ndk/toolchains/llvm/prebuilt/linux-x86_64/lib/clang/17/include/mmintrin.h:54:19: error: use of undeclared identifier '__builtin_ia32_vec_init_v2si'
+    return (__m64)__builtin_ia32_vec_init_v2si(__i, 0);
+                  ^
+/home/noname/android/ndk/toolchains/llvm/prebuilt/linux-x86_64/lib/clang/17/include/mmintrin.h:71:12: error: use of undeclared identifier '__builtin_ia32_vec_ext_v2si'
+    return __builtin_ia32_vec_ext_v2si((__v2si)__m, 0);
+           ^
+/home/noname/android/ndk/toolchains/llvm/prebuilt/linux-x86_64/lib/clang/17/include/mmintrin.h:133:19: error: use of undeclared identifier '__builtin_ia32_packsswb'
+    return (__m64)__builtin_ia32_packsswb((__v4hi)__m1, (__v4hi)__m2);
+                  ^
+/home/noname/android/ndk/toolchains/llvm/prebuilt/linux-x86_64/lib/clang/17/include/mmintrin.h:163:19: error: use of undeclared identifier '__builtin_ia32_packssdw'
+    return (__m64)__builtin_ia32_packssdw((__v2si)__m1, (__v2si)__m2);
+                  ^
+/home/noname/android/ndk/toolchains/llvm/prebuilt/linux-x86_64/lib/clang/17/include/mmintrin.h:193:19: error: use of undeclared identifier '__builtin_ia32_packuswb'
+    return (__m64)__builtin_ia32_packuswb((__v4hi)__m1, (__v4hi)__m2);
+                  ^
+/home/noname/android/ndk/toolchains/llvm/prebuilt/linux-x86_64/lib/clang/17/include/mmintrin.h:220:19: error: use of undeclared identifier '__builtin_ia32_punpckhbw'
+    return (__m64)__builtin_ia32_punpckhbw((__v8qi)__m1, (__v8qi)__m2);
+                  ^
+/home/noname/android/ndk/toolchains/llvm/prebuilt/linux-x86_64/lib/clang/17/include/mmintrin.h:243:19: error: use of undeclared identifier '__builtin_ia32_punpckhwd'
+    return (__m64)__builtin_ia32_punpckhwd((__v4hi)__m1, (__v4hi)__m2);
+                  ^
+/home/noname/android/ndk/toolchains/llvm/prebuilt/linux-x86_64/lib/clang/17/include/mmintrin.h:264:19: error: use of undeclared identifier '__builtin_ia32_punpckhdq'
+    return (__m64)__builtin_ia32_punpckhdq((__v2si)__m1, (__v2si)__m2);
+                  ^
+/home/noname/android/ndk/toolchains/llvm/prebuilt/linux-x86_64/lib/clang/17/include/mmintrin.h:291:19: error: use of undeclared identifier '__builtin_ia32_punpcklbw'
+    return (__m64)__builtin_ia32_punpcklbw((__v8qi)__m1, (__v8qi)__m2);
+                  ^
+/home/noname/android/ndk/toolchains/llvm/prebuilt/linux-x86_64/lib/clang/17/include/mmintrin.h:314:19: error: use of undeclared identifier '__builtin_ia32_punpcklwd'
+    return (__m64)__builtin_ia32_punpcklwd((__v4hi)__m1, (__v4hi)__m2);
+                  ^
+/home/noname/android/ndk/toolchains/llvm/prebuilt/linux-x86_64/lib/clang/17/include/mmintrin.h:335:19: error: use of undeclared identifier '__builtin_ia32_punpckldq'
+    return (__m64)__builtin_ia32_punpckldq((__v2si)__m1, (__v2si)__m2);
+                  ^
+fatal error: too many errors emitted, stopping now [-ferror-limit=]
+20 errors generated.
+In file included from src/rehlmaster/src/meta_api.cpp:4:
+In file included from src/rehlmaster/src/ex_rehlds_api.h:3:
+In file included from src/rehlmaster/dep/rehlsdk/engine/rehlds_api.h:31:
+In file included from src/rehlmaster/dep/rehlsdk/engine/rehlds_interfaces.h:39:
+In file included from src/rehlmaster/dep/rehlsdk/public/FileSystem.h:31:
+In file included from src/rehlmaster/dep/rehlsdk/public/interface.h:18:
+In file included from src/rehlmaster/dep/rehlsdk/engine/osconfig.h:93:
+/home/noname/android/ndk/toolchains/llvm/prebuilt/linux-x86_64/lib/clang/17/include/smmintrin.h:14:2: error: "This header is only meant to be used on x86 and x64 architecture"
+#error "This header is only meant to be used on x86 and x64 architecture"
+ ^
+In file included from src/rehlmaster/src/meta_api.cpp:4:
+In file included from src/rehlmaster/src/ex_rehlds_api.h:3:
+In file included from src/rehlmaster/dep/rehlsdk/engine/rehlds_api.h:31:
+In file included from src/rehlmaster/dep/rehlsdk/engine/rehlds_interfaces.h:39:
+In file included from src/rehlmaster/dep/rehlsdk/public/FileSystem.h:31:
+In file included from src/rehlmaster/dep/rehlsdk/public/interface.h:18:
+In file included from src/rehlmaster/dep/rehlsdk/engine/osconfig.h:93:
+In file included from /home/noname/android/ndk/toolchains/llvm/prebuilt/linux-x86_64/lib/clang/17/include/smmintrin.h:17:
+/home/noname/android/ndk/toolchains/llvm/prebuilt/linux-x86_64/lib/clang/17/include/tmmintrin.h:14:2: error: "This header is only meant to be used on x86 and x64 architecture"
+#error "This header is only meant to be used on x86 and x64 architecture"
+ ^
+In file included from src/rehlmaster/src/meta_api.cpp:4:
+In file included from src/rehlmaster/src/ex_rehlds_api.h:3:
+In file included from src/rehlmaster/dep/rehlsdk/engine/rehlds_api.h:31:
+In file included from src/rehlmaster/dep/rehlsdk/engine/rehlds_interfaces.h:39:
+In file included from src/rehlmaster/dep/rehlsdk/public/FileSystem.h:31:
+In file included from src/rehlmaster/dep/rehlsdk/public/interface.h:18:
+In file included from src/rehlmaster/dep/rehlsdk/engine/osconfig.h:93:
+In file included from /home/noname/android/ndk/toolchains/llvm/prebuilt/linux-x86_64/lib/clang/17/include/smmintrin.h:17:
+In file included from /home/noname/android/ndk/toolchains/llvm/prebuilt/linux-x86_64/lib/clang/17/include/tmmintrin.h:17:
+/home/noname/android/ndk/toolchains/llvm/prebuilt/linux-x86_64/lib/clang/17/include/pmmintrin.h:14:2: error: "This header is only meant to be used on x86 and x64 architecture"
+#error "This header is only meant to be used on x86 and x64 architecture"
+ ^
+In file included from src/rehlmaster/src/meta_api.cpp:4:
+In file included from src/rehlmaster/src/ex_rehlds_api.h:3:
+In file included from src/rehlmaster/dep/rehlsdk/engine/rehlds_api.h:31:
+In file included from src/rehlmaster/dep/rehlsdk/engine/rehlds_interfaces.h:39:
+In file included from src/rehlmaster/dep/rehlsdk/public/FileSystem.h:31:
+In file included from src/rehlmaster/dep/rehlsdk/public/interface.h:18:
+In file included from src/rehlmaster/dep/rehlsdk/engine/osconfig.h:93:
+In file included from /home/noname/android/ndk/toolchains/llvm/prebuilt/linux-x86_64/lib/clang/17/include/smmintrin.h:17:
+In file included from /home/noname/android/ndk/toolchains/llvm/prebuilt/linux-x86_64/lib/clang/17/include/tmmintrin.h:17:
+In file included from /home/noname/android/ndk/toolchains/llvm/prebuilt/linux-x86_64/lib/clang/17/include/pmmintrin.h:17:
+/home/noname/android/ndk/toolchains/llvm/prebuilt/linux-x86_64/lib/clang/17/include/emmintrin.h:14:2: error: "This header is only meant to be used on x86 and x64 architecture"
+#error "This header is only meant to be used on x86 and x64 architecture"
+ ^
+In file included from src/rehlmaster/src/meta_api.cpp:4:
+In file included from src/rehlmaster/src/ex_rehlds_api.h:3:
+In file included from src/rehlmaster/dep/rehlsdk/engine/rehlds_api.h:31:
+In file included from src/rehlmaster/dep/rehlsdk/engine/rehlds_interfaces.h:39:
+In file included from src/rehlmaster/dep/rehlsdk/public/FileSystem.h:31:
+In file included from src/rehlmaster/dep/rehlsdk/public/interface.h:18:
+In file included from src/rehlmaster/dep/rehlsdk/engine/osconfig.h:93:
+In file included from /home/noname/android/ndk/toolchains/llvm/prebuilt/linux-x86_64/lib/clang/17/include/smmintrin.h:17:
+In file included from /home/noname/android/ndk/toolchains/llvm/prebuilt/linux-x86_64/lib/clang/17/include/tmmintrin.h:17:
+In file included from /home/noname/android/ndk/toolchains/llvm/prebuilt/linux-x86_64/lib/clang/17/include/pmmintrin.h:17:
+In file included from /home/noname/android/ndk/toolchains/llvm/prebuilt/linux-x86_64/lib/clang/17/include/emmintrin.h:17:
+/home/noname/android/ndk/toolchains/llvm/prebuilt/linux-x86_64/lib/clang/17/include/xmmintrin.h:14:2: error: "This header is only meant to be used on x86 and x64 architecture"
+#error "This header is only meant to be used on x86 and x64 architecture"
+ ^
+In file included from src/rehlmaster/src/meta_api.cpp:4:
+In file included from src/rehlmaster/src/ex_rehlds_api.h:3:
+In file included from src/rehlmaster/dep/rehlsdk/engine/rehlds_api.h:31:
+In file included from src/rehlmaster/dep/rehlsdk/engine/rehlds_interfaces.h:39:
+In file included from src/rehlmaster/dep/rehlsdk/public/FileSystem.h:31:
+In file included from src/rehlmaster/dep/rehlsdk/public/interface.h:18:
+In file included from src/rehlmaster/dep/rehlsdk/engine/osconfig.h:93:
+In file included from /home/noname/android/ndk/toolchains/llvm/prebuilt/linux-x86_64/lib/clang/17/include/smmintrin.h:17:
+In file included from /home/noname/android/ndk/toolchains/llvm/prebuilt/linux-x86_64/lib/clang/17/include/tmmintrin.h:17:
+In file included from /home/noname/android/ndk/toolchains/llvm/prebuilt/linux-x86_64/lib/clang/17/include/pmmintrin.h:17:
+In file included from /home/noname/android/ndk/toolchains/llvm/prebuilt/linux-x86_64/lib/clang/17/include/emmintrin.h:17:
+In file included from /home/noname/android/ndk/toolchains/llvm/prebuilt/linux-x86_64/lib/clang/17/include/xmmintrin.h:17:
+/home/noname/android/ndk/toolchains/llvm/prebuilt/linux-x86_64/lib/clang/17/include/mmintrin.h:14:2: error: "This header is only meant to be used on x86 and x64 architecture"
+#error "This header is only meant to be used on x86 and x64 architecture"
+ ^
+/home/noname/android/ndk/toolchains/llvm/prebuilt/linux-x86_64/lib/clang/17/include/mmintrin.h:37:5: error: use of undeclared identifier '__builtin_ia32_emms'; did you mean '__builtin_isless'?
+    __builtin_ia32_emms();
+    ^
+/home/noname/android/ndk/toolchains/llvm/prebuilt/linux-x86_64/bin/../sysroot/usr/include/c++/v1/math.h:507:10: note: '__builtin_isless' declared here
+  return __builtin_isless((type)__x, (type)__y);
+         ^
+In file included from src/rehlmaster/src/meta_api.cpp:4:
+In file included from src/rehlmaster/src/ex_rehlds_api.h:3:
+In file included from src/rehlmaster/dep/rehlsdk/engine/rehlds_api.h:31:
+In file included from src/rehlmaster/dep/rehlsdk/engine/rehlds_interfaces.h:39:
+In file included from src/rehlmaster/dep/rehlsdk/public/FileSystem.h:31:
+In file included from src/rehlmaster/dep/rehlsdk/public/interface.h:18:
+In file included from src/rehlmaster/dep/rehlsdk/engine/osconfig.h:93:
+In file included from /home/noname/android/ndk/toolchains/llvm/prebuilt/linux-x86_64/lib/clang/17/include/smmintrin.h:17:
+In file included from /home/noname/android/ndk/toolchains/llvm/prebuilt/linux-x86_64/lib/clang/17/include/tmmintrin.h:17:
+In file included from /home/noname/android/ndk/toolchains/llvm/prebuilt/linux-x86_64/lib/clang/17/include/pmmintrin.h:17:
+In file included from /home/noname/android/ndk/toolchains/llvm/prebuilt/linux-x86_64/lib/clang/17/include/emmintrin.h:17:
+In file included from /home/noname/android/ndk/toolchains/llvm/prebuilt/linux-x86_64/lib/clang/17/include/xmmintrin.h:17:
+/home/noname/android/ndk/toolchains/llvm/prebuilt/linux-x86_64/lib/clang/17/include/mmintrin.h:37:25: error: too few arguments to function call, expected 2, have 0
+    __builtin_ia32_emms();
+    ~~~~~~~~~~~~~~~~~~~~^
+/home/noname/android/ndk/toolchains/llvm/prebuilt/linux-x86_64/lib/clang/17/include/mmintrin.h:54:19: error: use of undeclared identifier '__builtin_ia32_vec_init_v2si'
+    return (__m64)__builtin_ia32_vec_init_v2si(__i, 0);
+                  ^
+/home/noname/android/ndk/toolchains/llvm/prebuilt/linux-x86_64/lib/clang/17/include/mmintrin.h:71:12: error: use of undeclared identifier '__builtin_ia32_vec_ext_v2si'
+    return __builtin_ia32_vec_ext_v2si((__v2si)__m, 0);
+           ^
+/home/noname/android/ndk/toolchains/llvm/prebuilt/linux-x86_64/lib/clang/17/include/mmintrin.h:133:19: error: use of undeclared identifier '__builtin_ia32_packsswb'
+    return (__m64)__builtin_ia32_packsswb((__v4hi)__m1, (__v4hi)__m2);
+                  ^
+/home/noname/android/ndk/toolchains/llvm/prebuilt/linux-x86_64/lib/clang/17/include/mmintrin.h:163:19: error: use of undeclared identifier '__builtin_ia32_packssdw'
+    return (__m64)__builtin_ia32_packssdw((__v2si)__m1, (__v2si)__m2);
+                  ^
+/home/noname/android/ndk/toolchains/llvm/prebuilt/linux-x86_64/lib/clang/17/include/mmintrin.h:193:19: error: use of undeclared identifier '__builtin_ia32_packuswb'
+    return (__m64)__builtin_ia32_packuswb((__v4hi)__m1, (__v4hi)__m2);
+                  ^
+/home/noname/android/ndk/toolchains/llvm/prebuilt/linux-x86_64/lib/clang/17/include/mmintrin.h:220:19: error: use of undeclared identifier '__builtin_ia32_punpckhbw'
+    return (__m64)__builtin_ia32_punpckhbw((__v8qi)__m1, (__v8qi)__m2);
+                  ^
+/home/noname/android/ndk/toolchains/llvm/prebuilt/linux-x86_64/lib/clang/17/include/mmintrin.h:243:19: error: use of undeclared identifier '__builtin_ia32_punpckhwd'
+    return (__m64)__builtin_ia32_punpckhwd((__v4hi)__m1, (__v4hi)__m2);
+                  ^
+/home/noname/android/ndk/toolchains/llvm/prebuilt/linux-x86_64/lib/clang/17/include/mmintrin.h:264:19: error: use of undeclared identifier '__builtin_ia32_punpckhdq'
+    return (__m64)__builtin_ia32_punpckhdq((__v2si)__m1, (__v2si)__m2);
+                  ^
+/home/noname/android/ndk/toolchains/llvm/prebuilt/linux-x86_64/lib/clang/17/include/mmintrin.h:291:19: error: use of undeclared identifier '__builtin_ia32_punpcklbw'
+    return (__m64)__builtin_ia32_punpcklbw((__v8qi)__m1, (__v8qi)__m2);
+                  ^
+/home/noname/android/ndk/toolchains/llvm/prebuilt/linux-x86_64/lib/clang/17/include/mmintrin.h:314:19: error: use of undeclared identifier '__builtin_ia32_punpcklwd'
+    return (__m64)__builtin_ia32_punpcklwd((__v4hi)__m1, (__v4hi)__m2);
+                  ^
+/home/noname/android/ndk/toolchains/llvm/prebuilt/linux-x86_64/lib/clang/17/include/mmintrin.h:335:19: error: use of undeclared identifier '__builtin_ia32_punpckldq'
+    return (__m64)__builtin_ia32_punpckldq((__v2si)__m1, (__v2si)__m2);
+                  ^
+fatal error: too many errors emitted, stopping now [-ferror-limit=]
+20 errors generated.
+In file included from src/rehlmaster/src/public_amalgamation.cpp:3:
+In file included from src/rehlmaster/dep/rehlsdk/public/interface.cpp:29:
+In file included from src/rehlmaster/dep/rehlsdk/public/interface.h:18:
+In file included from src/rehlmaster/dep/rehlsdk/engine/osconfig.h:93:
+/home/noname/android/ndk/toolchains/llvm/prebuilt/linux-x86_64/lib/clang/17/include/smmintrin.h:14:2: error: "This header is only meant to be used on x86 and x64 architecture"
+#error "This header is only meant to be used on x86 and x64 architecture"
+ ^
+In file included from src/rehlmaster/src/public_amalgamation.cpp:3:
+In file included from src/rehlmaster/dep/rehlsdk/public/interface.cpp:29:
+In file included from src/rehlmaster/dep/rehlsdk/public/interface.h:18:
+In file included from src/rehlmaster/dep/rehlsdk/engine/osconfig.h:93:
+In file included from /home/noname/android/ndk/toolchains/llvm/prebuilt/linux-x86_64/lib/clang/17/include/smmintrin.h:17:
+/home/noname/android/ndk/toolchains/llvm/prebuilt/linux-x86_64/lib/clang/17/include/tmmintrin.h:14:2: error: "This header is only meant to be used on x86 and x64 architecture"
+#error "This header is only meant to be used on x86 and x64 architecture"
+ ^
+In file included from src/rehlmaster/src/public_amalgamation.cpp:3:
+In file included from src/rehlmaster/dep/rehlsdk/public/interface.cpp:29:
+In file included from src/rehlmaster/dep/rehlsdk/public/interface.h:18:
+In file included from src/rehlmaster/dep/rehlsdk/engine/osconfig.h:93:
+In file included from /home/noname/android/ndk/toolchains/llvm/prebuilt/linux-x86_64/lib/clang/17/include/smmintrin.h:17:
+In file included from /home/noname/android/ndk/toolchains/llvm/prebuilt/linux-x86_64/lib/clang/17/include/tmmintrin.h:17:
+/home/noname/android/ndk/toolchains/llvm/prebuilt/linux-x86_64/lib/clang/17/include/pmmintrin.h:14:2: error: "This header is only meant to be used on x86 and x64 architecture"
+#error "This header is only meant to be used on x86 and x64 architecture"
+ ^
+In file included from src/rehlmaster/src/public_amalgamation.cpp:3:
+In file included from src/rehlmaster/dep/rehlsdk/public/interface.cpp:29:
+In file included from src/rehlmaster/dep/rehlsdk/public/interface.h:18:
+In file included from src/rehlmaster/dep/rehlsdk/engine/osconfig.h:93:
+In file included from /home/noname/android/ndk/toolchains/llvm/prebuilt/linux-x86_64/lib/clang/17/include/smmintrin.h:17:
+In file included from /home/noname/android/ndk/toolchains/llvm/prebuilt/linux-x86_64/lib/clang/17/include/tmmintrin.h:17:
+In file included from /home/noname/android/ndk/toolchains/llvm/prebuilt/linux-x86_64/lib/clang/17/include/pmmintrin.h:17:
+/home/noname/android/ndk/toolchains/llvm/prebuilt/linux-x86_64/lib/clang/17/include/emmintrin.h:14:2: error: "This header is only meant to be used on x86 and x64 architecture"
+#error "This header is only meant to be used on x86 and x64 architecture"
+ ^
+In file included from src/rehlmaster/src/public_amalgamation.cpp:3:
+In file included from src/rehlmaster/dep/rehlsdk/public/interface.cpp:29:
+In file included from src/rehlmaster/dep/rehlsdk/public/interface.h:18:
+In file included from src/rehlmaster/dep/rehlsdk/engine/osconfig.h:93:
+In file included from /home/noname/android/ndk/toolchains/llvm/prebuilt/linux-x86_64/lib/clang/17/include/smmintrin.h:17:
+In file included from /home/noname/android/ndk/toolchains/llvm/prebuilt/linux-x86_64/lib/clang/17/include/tmmintrin.h:17:
+In file included from /home/noname/android/ndk/toolchains/llvm/prebuilt/linux-x86_64/lib/clang/17/include/pmmintrin.h:17:
+In file included from /home/noname/android/ndk/toolchains/llvm/prebuilt/linux-x86_64/lib/clang/17/include/emmintrin.h:17:
+/home/noname/android/ndk/toolchains/llvm/prebuilt/linux-x86_64/lib/clang/17/include/xmmintrin.h:14:2: error: "This header is only meant to be used on x86 and x64 architecture"
+#error "This header is only meant to be used on x86 and x64 architecture"
+ ^
+In file included from src/rehlmaster/src/public_amalgamation.cpp:3:
+In file included from src/rehlmaster/dep/rehlsdk/public/interface.cpp:29:
+In file included from src/rehlmaster/dep/rehlsdk/public/interface.h:18:
+In file included from src/rehlmaster/dep/rehlsdk/engine/osconfig.h:93:
+In file included from /home/noname/android/ndk/toolchains/llvm/prebuilt/linux-x86_64/lib/clang/17/include/smmintrin.h:17:
+In file included from /home/noname/android/ndk/toolchains/llvm/prebuilt/linux-x86_64/lib/clang/17/include/tmmintrin.h:17:
+In file included from /home/noname/android/ndk/toolchains/llvm/prebuilt/linux-x86_64/lib/clang/17/include/pmmintrin.h:17:
+In file included from /home/noname/android/ndk/toolchains/llvm/prebuilt/linux-x86_64/lib/clang/17/include/emmintrin.h:17:
+In file included from /home/noname/android/ndk/toolchains/llvm/prebuilt/linux-x86_64/lib/clang/17/include/xmmintrin.h:17:
+/home/noname/android/ndk/toolchains/llvm/prebuilt/linux-x86_64/lib/clang/17/include/mmintrin.h:14:2: error: "This header is only meant to be used on x86 and x64 architecture"
+#error "This header is only meant to be used on x86 and x64 architecture"
+ ^
+/home/noname/android/ndk/toolchains/llvm/prebuilt/linux-x86_64/lib/clang/17/include/mmintrin.h:37:5: error: use of undeclared identifier '__builtin_ia32_emms'; did you mean '__builtin_isless'?
+    __builtin_ia32_emms();
+    ^
+/home/noname/android/ndk/toolchains/llvm/prebuilt/linux-x86_64/bin/../sysroot/usr/include/c++/v1/math.h:507:10: note: '__builtin_isless' declared here
+  return __builtin_isless((type)__x, (type)__y);
+         ^
+In file included from src/rehlmaster/src/public_amalgamation.cpp:3:
+In file included from src/rehlmaster/dep/rehlsdk/public/interface.cpp:29:
+In file included from src/rehlmaster/dep/rehlsdk/public/interface.h:18:
+In file included from src/rehlmaster/dep/rehlsdk/engine/osconfig.h:93:
+In file included from /home/noname/android/ndk/toolchains/llvm/prebuilt/linux-x86_64/lib/clang/17/include/smmintrin.h:17:
+In file included from /home/noname/android/ndk/toolchains/llvm/prebuilt/linux-x86_64/lib/clang/17/include/tmmintrin.h:17:
+In file included from /home/noname/android/ndk/toolchains/llvm/prebuilt/linux-x86_64/lib/clang/17/include/pmmintrin.h:17:
+In file included from /home/noname/android/ndk/toolchains/llvm/prebuilt/linux-x86_64/lib/clang/17/include/emmintrin.h:17:
+In file included from /home/noname/android/ndk/toolchains/llvm/prebuilt/linux-x86_64/lib/clang/17/include/xmmintrin.h:17:
+/home/noname/android/ndk/toolchains/llvm/prebuilt/linux-x86_64/lib/clang/17/include/mmintrin.h:37:25: error: too few arguments to function call, expected 2, have 0
+    __builtin_ia32_emms();
+    ~~~~~~~~~~~~~~~~~~~~^
+/home/noname/android/ndk/toolchains/llvm/prebuilt/linux-x86_64/lib/clang/17/include/mmintrin.h:54:19: error: use of undeclared identifier '__builtin_ia32_vec_init_v2si'
+    return (__m64)__builtin_ia32_vec_init_v2si(__i, 0);
+                  ^
+/home/noname/android/ndk/toolchains/llvm/prebuilt/linux-x86_64/lib/clang/17/include/mmintrin.h:71:12: error: use of undeclared identifier '__builtin_ia32_vec_ext_v2si'
+    return __builtin_ia32_vec_ext_v2si((__v2si)__m, 0);
+           ^
+/home/noname/android/ndk/toolchains/llvm/prebuilt/linux-x86_64/lib/clang/17/include/mmintrin.h:133:19: error: use of undeclared identifier '__builtin_ia32_packsswb'
+    return (__m64)__builtin_ia32_packsswb((__v4hi)__m1, (__v4hi)__m2);
+                  ^
+/home/noname/android/ndk/toolchains/llvm/prebuilt/linux-x86_64/lib/clang/17/include/mmintrin.h:163:19: error: use of undeclared identifier '__builtin_ia32_packssdw'
+    return (__m64)__builtin_ia32_packssdw((__v2si)__m1, (__v2si)__m2);
+                  ^
+/home/noname/android/ndk/toolchains/llvm/prebuilt/linux-x86_64/lib/clang/17/include/mmintrin.h:193:19: error: use of undeclared identifier '__builtin_ia32_packuswb'
+    return (__m64)__builtin_ia32_packuswb((__v4hi)__m1, (__v4hi)__m2);
+                  ^
+/home/noname/android/ndk/toolchains/llvm/prebuilt/linux-x86_64/lib/clang/17/include/mmintrin.h:220:19: error: use of undeclared identifier '__builtin_ia32_punpckhbw'
+    return (__m64)__builtin_ia32_punpckhbw((__v8qi)__m1, (__v8qi)__m2);
+                  ^
+/home/noname/android/ndk/toolchains/llvm/prebuilt/linux-x86_64/lib/clang/17/include/mmintrin.h:243:19: error: use of undeclared identifier '__builtin_ia32_punpckhwd'
+    return (__m64)__builtin_ia32_punpckhwd((__v4hi)__m1, (__v4hi)__m2);
+                  ^
+/home/noname/android/ndk/toolchains/llvm/prebuilt/linux-x86_64/lib/clang/17/include/mmintrin.h:264:19: error: use of undeclared identifier '__builtin_ia32_punpckhdq'
+    return (__m64)__builtin_ia32_punpckhdq((__v2si)__m1, (__v2si)__m2);
+                  ^
+/home/noname/android/ndk/toolchains/llvm/prebuilt/linux-x86_64/lib/clang/17/include/mmintrin.h:291:19: error: use of undeclared identifier '__builtin_ia32_punpcklbw'
+    return (__m64)__builtin_ia32_punpcklbw((__v8qi)__m1, (__v8qi)__m2);
+                  ^
+/home/noname/android/ndk/toolchains/llvm/prebuilt/linux-x86_64/lib/clang/17/include/mmintrin.h:314:19: error: use of undeclared identifier '__builtin_ia32_punpcklwd'
+    return (__m64)__builtin_ia32_punpcklwd((__v4hi)__m1, (__v4hi)__m2);
+                  ^
+/home/noname/android/ndk/toolchains/llvm/prebuilt/linux-x86_64/lib/clang/17/include/mmintrin.h:335:19: error: use of undeclared identifier '__builtin_ia32_punpckldq'
+    return (__m64)__builtin_ia32_punpckldq((__v2si)__m1, (__v2si)__m2);
+                  ^
+fatal error: too many errors emitted, stopping now [-ferror-limit=]
+20 errors generated.
+In file included from src/rehlmaster/src/rehlmaster.cpp:4:
+In file included from src/rehlmaster/src/ex_rehlds_api.h:3:
+In file included from src/rehlmaster/dep/rehlsdk/engine/rehlds_api.h:31:
+In file included from src/rehlmaster/dep/rehlsdk/engine/rehlds_interfaces.h:39:
+In file included from src/rehlmaster/dep/rehlsdk/public/FileSystem.h:31:
+In file included from src/rehlmaster/dep/rehlsdk/public/interface.h:18:
+In file included from src/rehlmaster/dep/rehlsdk/engine/osconfig.h:93:
+/home/noname/android/ndk/toolchains/llvm/prebuilt/linux-x86_64/lib/clang/17/include/smmintrin.h:14:2: error: "This header is only meant to be used on x86 and x64 architecture"
+#error "This header is only meant to be used on x86 and x64 architecture"
+ ^
+In file included from src/rehlmaster/src/rehlmaster.cpp:4:
+In file included from src/rehlmaster/src/ex_rehlds_api.h:3:
+In file included from src/rehlmaster/dep/rehlsdk/engine/rehlds_api.h:31:
+In file included from src/rehlmaster/dep/rehlsdk/engine/rehlds_interfaces.h:39:
+In file included from src/rehlmaster/dep/rehlsdk/public/FileSystem.h:31:
+In file included from src/rehlmaster/dep/rehlsdk/public/interface.h:18:
+In file included from src/rehlmaster/dep/rehlsdk/engine/osconfig.h:93:
+In file included from /home/noname/android/ndk/toolchains/llvm/prebuilt/linux-x86_64/lib/clang/17/include/smmintrin.h:17:
+/home/noname/android/ndk/toolchains/llvm/prebuilt/linux-x86_64/lib/clang/17/include/tmmintrin.h:14:2: error: "This header is only meant to be used on x86 and x64 architecture"
+#error "This header is only meant to be used on x86 and x64 architecture"
+ ^
+In file included from src/rehlmaster/src/rehlmaster.cpp:4:
+In file included from src/rehlmaster/src/ex_rehlds_api.h:3:
+In file included from src/rehlmaster/dep/rehlsdk/engine/rehlds_api.h:31:
+In file included from src/rehlmaster/dep/rehlsdk/engine/rehlds_interfaces.h:39:
+In file included from src/rehlmaster/dep/rehlsdk/public/FileSystem.h:31:
+In file included from src/rehlmaster/dep/rehlsdk/public/interface.h:18:
+In file included from src/rehlmaster/dep/rehlsdk/engine/osconfig.h:93:
+In file included from /home/noname/android/ndk/toolchains/llvm/prebuilt/linux-x86_64/lib/clang/17/include/smmintrin.h:17:
+In file included from /home/noname/android/ndk/toolchains/llvm/prebuilt/linux-x86_64/lib/clang/17/include/tmmintrin.h:17:
+/home/noname/android/ndk/toolchains/llvm/prebuilt/linux-x86_64/lib/clang/17/include/pmmintrin.h:14:2: error: "This header is only meant to be used on x86 and x64 architecture"
+#error "This header is only meant to be used on x86 and x64 architecture"
+ ^
+In file included from src/rehlmaster/src/rehlmaster.cpp:4:
+In file included from src/rehlmaster/src/ex_rehlds_api.h:3:
+In file included from src/rehlmaster/dep/rehlsdk/engine/rehlds_api.h:31:
+In file included from src/rehlmaster/dep/rehlsdk/engine/rehlds_interfaces.h:39:
+In file included from src/rehlmaster/dep/rehlsdk/public/FileSystem.h:31:
+In file included from src/rehlmaster/dep/rehlsdk/public/interface.h:18:
+In file included from src/rehlmaster/dep/rehlsdk/engine/osconfig.h:93:
+In file included from /home/noname/android/ndk/toolchains/llvm/prebuilt/linux-x86_64/lib/clang/17/include/smmintrin.h:17:
+In file included from /home/noname/android/ndk/toolchains/llvm/prebuilt/linux-x86_64/lib/clang/17/include/tmmintrin.h:17:
+In file included from /home/noname/android/ndk/toolchains/llvm/prebuilt/linux-x86_64/lib/clang/17/include/pmmintrin.h:17:
+/home/noname/android/ndk/toolchains/llvm/prebuilt/linux-x86_64/lib/clang/17/include/emmintrin.h:14:2: error: "This header is only meant to be used on x86 and x64 architecture"
+#error "This header is only meant to be used on x86 and x64 architecture"
+ ^
+In file included from src/rehlmaster/src/rehlmaster.cpp:4:
+In file included from src/rehlmaster/src/ex_rehlds_api.h:3:
+In file included from src/rehlmaster/dep/rehlsdk/engine/rehlds_api.h:31:
+In file included from src/rehlmaster/dep/rehlsdk/engine/rehlds_interfaces.h:39:
+In file included from src/rehlmaster/dep/rehlsdk/public/FileSystem.h:31:
+In file included from src/rehlmaster/dep/rehlsdk/public/interface.h:18:
+In file included from src/rehlmaster/dep/rehlsdk/engine/osconfig.h:93:
+In file included from /home/noname/android/ndk/toolchains/llvm/prebuilt/linux-x86_64/lib/clang/17/include/smmintrin.h:17:
+In file included from /home/noname/android/ndk/toolchains/llvm/prebuilt/linux-x86_64/lib/clang/17/include/tmmintrin.h:17:
+In file included from /home/noname/android/ndk/toolchains/llvm/prebuilt/linux-x86_64/lib/clang/17/include/pmmintrin.h:17:
+In file included from /home/noname/android/ndk/toolchains/llvm/prebuilt/linux-x86_64/lib/clang/17/include/emmintrin.h:17:
+/home/noname/android/ndk/toolchains/llvm/prebuilt/linux-x86_64/lib/clang/17/include/xmmintrin.h:14:2: error: "This header is only meant to be used on x86 and x64 architecture"
+#error "This header is only meant to be used on x86 and x64 architecture"
+ ^
+In file included from src/rehlmaster/src/rehlmaster.cpp:4:
+In file included from src/rehlmaster/src/ex_rehlds_api.h:3:
+In file included from src/rehlmaster/dep/rehlsdk/engine/rehlds_api.h:31:
+In file included from src/rehlmaster/dep/rehlsdk/engine/rehlds_interfaces.h:39:
+In file included from src/rehlmaster/dep/rehlsdk/public/FileSystem.h:31:
+In file included from src/rehlmaster/dep/rehlsdk/public/interface.h:18:
+In file included from src/rehlmaster/dep/rehlsdk/engine/osconfig.h:93:
+In file included from /home/noname/android/ndk/toolchains/llvm/prebuilt/linux-x86_64/lib/clang/17/include/smmintrin.h:17:
+In file included from /home/noname/android/ndk/toolchains/llvm/prebuilt/linux-x86_64/lib/clang/17/include/tmmintrin.h:17:
+In file included from /home/noname/android/ndk/toolchains/llvm/prebuilt/linux-x86_64/lib/clang/17/include/pmmintrin.h:17:
+In file included from /home/noname/android/ndk/toolchains/llvm/prebuilt/linux-x86_64/lib/clang/17/include/emmintrin.h:17:
+In file included from /home/noname/android/ndk/toolchains/llvm/prebuilt/linux-x86_64/lib/clang/17/include/xmmintrin.h:17:
+/home/noname/android/ndk/toolchains/llvm/prebuilt/linux-x86_64/lib/clang/17/include/mmintrin.h:14:2: error: "This header is only meant to be used on x86 and x64 architecture"
+#error "This header is only meant to be used on x86 and x64 architecture"
+ ^
+/home/noname/android/ndk/toolchains/llvm/prebuilt/linux-x86_64/lib/clang/17/include/mmintrin.h:37:5: error: use of undeclared identifier '__builtin_ia32_emms'; did you mean '__builtin_isless'?
+    __builtin_ia32_emms();
+    ^
+/home/noname/android/ndk/toolchains/llvm/prebuilt/linux-x86_64/bin/../sysroot/usr/include/c++/v1/math.h:507:10: note: '__builtin_isless' declared here
+  return __builtin_isless((type)__x, (type)__y);
+         ^
+In file included from src/rehlmaster/src/rehlmaster.cpp:4:
+In file included from src/rehlmaster/src/ex_rehlds_api.h:3:
+In file included from src/rehlmaster/dep/rehlsdk/engine/rehlds_api.h:31:
+In file included from src/rehlmaster/dep/rehlsdk/engine/rehlds_interfaces.h:39:
+In file included from src/rehlmaster/dep/rehlsdk/public/FileSystem.h:31:
+In file included from src/rehlmaster/dep/rehlsdk/public/interface.h:18:
+In file included from src/rehlmaster/dep/rehlsdk/engine/osconfig.h:93:
+In file included from /home/noname/android/ndk/toolchains/llvm/prebuilt/linux-x86_64/lib/clang/17/include/smmintrin.h:17:
+In file included from /home/noname/android/ndk/toolchains/llvm/prebuilt/linux-x86_64/lib/clang/17/include/tmmintrin.h:17:
+In file included from /home/noname/android/ndk/toolchains/llvm/prebuilt/linux-x86_64/lib/clang/17/include/pmmintrin.h:17:
+In file included from /home/noname/android/ndk/toolchains/llvm/prebuilt/linux-x86_64/lib/clang/17/include/emmintrin.h:17:
+In file included from /home/noname/android/ndk/toolchains/llvm/prebuilt/linux-x86_64/lib/clang/17/include/xmmintrin.h:17:
+/home/noname/android/ndk/toolchains/llvm/prebuilt/linux-x86_64/lib/clang/17/include/mmintrin.h:37:25: error: too few arguments to function call, expected 2, have 0
+    __builtin_ia32_emms();
+    ~~~~~~~~~~~~~~~~~~~~^
+/home/noname/android/ndk/toolchains/llvm/prebuilt/linux-x86_64/lib/clang/17/include/mmintrin.h:54:19: error: use of undeclared identifier '__builtin_ia32_vec_init_v2si'
+    return (__m64)__builtin_ia32_vec_init_v2si(__i, 0);
+                  ^
+/home/noname/android/ndk/toolchains/llvm/prebuilt/linux-x86_64/lib/clang/17/include/mmintrin.h:71:12: error: use of undeclared identifier '__builtin_ia32_vec_ext_v2si'
+    return __builtin_ia32_vec_ext_v2si((__v2si)__m, 0);
+           ^
+/home/noname/android/ndk/toolchains/llvm/prebuilt/linux-x86_64/lib/clang/17/include/mmintrin.h:133:19: error: use of undeclared identifier '__builtin_ia32_packsswb'
+    return (__m64)__builtin_ia32_packsswb((__v4hi)__m1, (__v4hi)__m2);
+                  ^
+/home/noname/android/ndk/toolchains/llvm/prebuilt/linux-x86_64/lib/clang/17/include/mmintrin.h:163:19: error: use of undeclared identifier '__builtin_ia32_packssdw'
+    return (__m64)__builtin_ia32_packssdw((__v2si)__m1, (__v2si)__m2);
+                  ^
+/home/noname/android/ndk/toolchains/llvm/prebuilt/linux-x86_64/lib/clang/17/include/mmintrin.h:193:19: error: use of undeclared identifier '__builtin_ia32_packuswb'
+    return (__m64)__builtin_ia32_packuswb((__v4hi)__m1, (__v4hi)__m2);
+                  ^
+/home/noname/android/ndk/toolchains/llvm/prebuilt/linux-x86_64/lib/clang/17/include/mmintrin.h:220:19: error: use of undeclared identifier '__builtin_ia32_punpckhbw'
+    return (__m64)__builtin_ia32_punpckhbw((__v8qi)__m1, (__v8qi)__m2);
+                  ^
+/home/noname/android/ndk/toolchains/llvm/prebuilt/linux-x86_64/lib/clang/17/include/mmintrin.h:243:19: error: use of undeclared identifier '__builtin_ia32_punpckhwd'
+    return (__m64)__builtin_ia32_punpckhwd((__v4hi)__m1, (__v4hi)__m2);
+                  ^
+/home/noname/android/ndk/toolchains/llvm/prebuilt/linux-x86_64/lib/clang/17/include/mmintrin.h:264:19: error: use of undeclared identifier '__builtin_ia32_punpckhdq'
+    return (__m64)__builtin_ia32_punpckhdq((__v2si)__m1, (__v2si)__m2);
+                  ^
+/home/noname/android/ndk/toolchains/llvm/prebuilt/linux-x86_64/lib/clang/17/include/mmintrin.h:291:19: error: use of undeclared identifier '__builtin_ia32_punpcklbw'
+    return (__m64)__builtin_ia32_punpcklbw((__v8qi)__m1, (__v8qi)__m2);
+                  ^
+/home/noname/android/ndk/toolchains/llvm/prebuilt/linux-x86_64/lib/clang/17/include/mmintrin.h:314:19: error: use of undeclared identifier '__builtin_ia32_punpcklwd'
+    return (__m64)__builtin_ia32_punpcklwd((__v4hi)__m1, (__v4hi)__m2);
+                  ^
+/home/noname/android/ndk/toolchains/llvm/prebuilt/linux-x86_64/lib/clang/17/include/mmintrin.h:335:19: error: use of undeclared identifier '__builtin_ia32_punpckldq'
+    return (__m64)__builtin_ia32_punpckldq((__v2si)__m1, (__v2si)__m2);
+                  ^
+fatal error: too many errors emitted, stopping now [-ferror-limit=]
+20 errors generated.
+In file included from src/rehlmaster/src/server_info.cpp:1:
+In file included from src/rehlmaster/src/server_info.h:5:
+In file included from src/rehlmaster/src/ex_rehlds_api.h:3:
+In file included from src/rehlmaster/dep/rehlsdk/engine/rehlds_api.h:31:
+In file included from src/rehlmaster/dep/rehlsdk/engine/rehlds_interfaces.h:39:
+In file included from src/rehlmaster/dep/rehlsdk/public/FileSystem.h:31:
+In file included from src/rehlmaster/dep/rehlsdk/public/interface.h:18:
+In file included from src/rehlmaster/dep/rehlsdk/engine/osconfig.h:93:
+/home/noname/android/ndk/toolchains/llvm/prebuilt/linux-x86_64/lib/clang/17/include/smmintrin.h:14:2: error: "This header is only meant to be used on x86 and x64 architecture"
+#error "This header is only meant to be used on x86 and x64 architecture"
+ ^
+In file included from src/rehlmaster/src/server_info.cpp:1:
+In file included from src/rehlmaster/src/server_info.h:5:
+In file included from src/rehlmaster/src/ex_rehlds_api.h:3:
+In file included from src/rehlmaster/dep/rehlsdk/engine/rehlds_api.h:31:
+In file included from src/rehlmaster/dep/rehlsdk/engine/rehlds_interfaces.h:39:
+In file included from src/rehlmaster/dep/rehlsdk/public/FileSystem.h:31:
+In file included from src/rehlmaster/dep/rehlsdk/public/interface.h:18:
+In file included from src/rehlmaster/dep/rehlsdk/engine/osconfig.h:93:
+In file included from /home/noname/android/ndk/toolchains/llvm/prebuilt/linux-x86_64/lib/clang/17/include/smmintrin.h:17:
+/home/noname/android/ndk/toolchains/llvm/prebuilt/linux-x86_64/lib/clang/17/include/tmmintrin.h:14:2: error: "This header is only meant to be used on x86 and x64 architecture"
+#error "This header is only meant to be used on x86 and x64 architecture"
+ ^
+In file included from src/rehlmaster/src/server_info.cpp:1:
+In file included from src/rehlmaster/src/server_info.h:5:
+In file included from src/rehlmaster/src/ex_rehlds_api.h:3:
+In file included from src/rehlmaster/dep/rehlsdk/engine/rehlds_api.h:31:
+In file included from src/rehlmaster/dep/rehlsdk/engine/rehlds_interfaces.h:39:
+In file included from src/rehlmaster/dep/rehlsdk/public/FileSystem.h:31:
+In file included from src/rehlmaster/dep/rehlsdk/public/interface.h:18:
+In file included from src/rehlmaster/dep/rehlsdk/engine/osconfig.h:93:
+In file included from /home/noname/android/ndk/toolchains/llvm/prebuilt/linux-x86_64/lib/clang/17/include/smmintrin.h:17:
+In file included from /home/noname/android/ndk/toolchains/llvm/prebuilt/linux-x86_64/lib/clang/17/include/tmmintrin.h:17:
+/home/noname/android/ndk/toolchains/llvm/prebuilt/linux-x86_64/lib/clang/17/include/pmmintrin.h:14:2: error: "This header is only meant to be used on x86 and x64 architecture"
+#error "This header is only meant to be used on x86 and x64 architecture"
+ ^
+In file included from src/rehlmaster/src/server_info.cpp:1:
+In file included from src/rehlmaster/src/server_info.h:5:
+In file included from src/rehlmaster/src/ex_rehlds_api.h:3:
+In file included from src/rehlmaster/dep/rehlsdk/engine/rehlds_api.h:31:
+In file included from src/rehlmaster/dep/rehlsdk/engine/rehlds_interfaces.h:39:
+In file included from src/rehlmaster/dep/rehlsdk/public/FileSystem.h:31:
+In file included from src/rehlmaster/dep/rehlsdk/public/interface.h:18:
+In file included from src/rehlmaster/dep/rehlsdk/engine/osconfig.h:93:
+In file included from /home/noname/android/ndk/toolchains/llvm/prebuilt/linux-x86_64/lib/clang/17/include/smmintrin.h:17:
+In file included from /home/noname/android/ndk/toolchains/llvm/prebuilt/linux-x86_64/lib/clang/17/include/tmmintrin.h:17:
+In file included from /home/noname/android/ndk/toolchains/llvm/prebuilt/linux-x86_64/lib/clang/17/include/pmmintrin.h:17:
+/home/noname/android/ndk/toolchains/llvm/prebuilt/linux-x86_64/lib/clang/17/include/emmintrin.h:14:2: error: "This header is only meant to be used on x86 and x64 architecture"
+#error "This header is only meant to be used on x86 and x64 architecture"
+ ^
+In file included from src/rehlmaster/src/server_info.cpp:1:
+In file included from src/rehlmaster/src/server_info.h:5:
+In file included from src/rehlmaster/src/ex_rehlds_api.h:3:
+In file included from src/rehlmaster/dep/rehlsdk/engine/rehlds_api.h:31:
+In file included from src/rehlmaster/dep/rehlsdk/engine/rehlds_interfaces.h:39:
+In file included from src/rehlmaster/dep/rehlsdk/public/FileSystem.h:31:
+In file included from src/rehlmaster/dep/rehlsdk/public/interface.h:18:
+In file included from src/rehlmaster/dep/rehlsdk/engine/osconfig.h:93:
+In file included from /home/noname/android/ndk/toolchains/llvm/prebuilt/linux-x86_64/lib/clang/17/include/smmintrin.h:17:
+In file included from /home/noname/android/ndk/toolchains/llvm/prebuilt/linux-x86_64/lib/clang/17/include/tmmintrin.h:17:
+In file included from /home/noname/android/ndk/toolchains/llvm/prebuilt/linux-x86_64/lib/clang/17/include/pmmintrin.h:17:
+In file included from /home/noname/android/ndk/toolchains/llvm/prebuilt/linux-x86_64/lib/clang/17/include/emmintrin.h:17:
+/home/noname/android/ndk/toolchains/llvm/prebuilt/linux-x86_64/lib/clang/17/include/xmmintrin.h:14:2: error: "This header is only meant to be used on x86 and x64 architecture"
+#error "This header is only meant to be used on x86 and x64 architecture"
+ ^
+In file included from src/rehlmaster/src/server_info.cpp:1:
+In file included from src/rehlmaster/src/server_info.h:5:
+In file included from src/rehlmaster/src/ex_rehlds_api.h:3:
+In file included from src/rehlmaster/dep/rehlsdk/engine/rehlds_api.h:31:
+In file included from src/rehlmaster/dep/rehlsdk/engine/rehlds_interfaces.h:39:
+In file included from src/rehlmaster/dep/rehlsdk/public/FileSystem.h:31:
+In file included from src/rehlmaster/dep/rehlsdk/public/interface.h:18:
+In file included from src/rehlmaster/dep/rehlsdk/engine/osconfig.h:93:
+In file included from /home/noname/android/ndk/toolchains/llvm/prebuilt/linux-x86_64/lib/clang/17/include/smmintrin.h:17:
+In file included from /home/noname/android/ndk/toolchains/llvm/prebuilt/linux-x86_64/lib/clang/17/include/tmmintrin.h:17:
+In file included from /home/noname/android/ndk/toolchains/llvm/prebuilt/linux-x86_64/lib/clang/17/include/pmmintrin.h:17:
+In file included from /home/noname/android/ndk/toolchains/llvm/prebuilt/linux-x86_64/lib/clang/17/include/emmintrin.h:17:
+In file included from /home/noname/android/ndk/toolchains/llvm/prebuilt/linux-x86_64/lib/clang/17/include/xmmintrin.h:17:
+/home/noname/android/ndk/toolchains/llvm/prebuilt/linux-x86_64/lib/clang/17/include/mmintrin.h:14:2: error: "This header is only meant to be used on x86 and x64 architecture"
+#error "This header is only meant to be used on x86 and x64 architecture"
+ ^
+/home/noname/android/ndk/toolchains/llvm/prebuilt/linux-x86_64/lib/clang/17/include/mmintrin.h:37:5: error: use of undeclared identifier '__builtin_ia32_emms'; did you mean '__builtin_isless'?
+    __builtin_ia32_emms();
+    ^
+/home/noname/android/ndk/toolchains/llvm/prebuilt/linux-x86_64/bin/../sysroot/usr/include/c++/v1/math.h:507:10: note: '__builtin_isless' declared here
+  return __builtin_isless((type)__x, (type)__y);
+         ^
+In file included from src/rehlmaster/src/server_info.cpp:1:
+In file included from src/rehlmaster/src/server_info.h:5:
+In file included from src/rehlmaster/src/ex_rehlds_api.h:3:
+In file included from src/rehlmaster/dep/rehlsdk/engine/rehlds_api.h:31:
+In file included from src/rehlmaster/dep/rehlsdk/engine/rehlds_interfaces.h:39:
+In file included from src/rehlmaster/dep/rehlsdk/public/FileSystem.h:31:
+In file included from src/rehlmaster/dep/rehlsdk/public/interface.h:18:
+In file included from src/rehlmaster/dep/rehlsdk/engine/osconfig.h:93:
+In file included from /home/noname/android/ndk/toolchains/llvm/prebuilt/linux-x86_64/lib/clang/17/include/smmintrin.h:17:
+In file included from /home/noname/android/ndk/toolchains/llvm/prebuilt/linux-x86_64/lib/clang/17/include/tmmintrin.h:17:
+In file included from /home/noname/android/ndk/toolchains/llvm/prebuilt/linux-x86_64/lib/clang/17/include/pmmintrin.h:17:
+In file included from /home/noname/android/ndk/toolchains/llvm/prebuilt/linux-x86_64/lib/clang/17/include/emmintrin.h:17:
+In file included from /home/noname/android/ndk/toolchains/llvm/prebuilt/linux-x86_64/lib/clang/17/include/xmmintrin.h:17:
+/home/noname/android/ndk/toolchains/llvm/prebuilt/linux-x86_64/lib/clang/17/include/mmintrin.h:37:25: error: too few arguments to function call, expected 2, have 0
+    __builtin_ia32_emms();
+    ~~~~~~~~~~~~~~~~~~~~^
+/home/noname/android/ndk/toolchains/llvm/prebuilt/linux-x86_64/lib/clang/17/include/mmintrin.h:54:19: error: use of undeclared identifier '__builtin_ia32_vec_init_v2si'
+    return (__m64)__builtin_ia32_vec_init_v2si(__i, 0);
+                  ^
+/home/noname/android/ndk/toolchains/llvm/prebuilt/linux-x86_64/lib/clang/17/include/mmintrin.h:71:12: error: use of undeclared identifier '__builtin_ia32_vec_ext_v2si'
+    return __builtin_ia32_vec_ext_v2si((__v2si)__m, 0);
+           ^
+/home/noname/android/ndk/toolchains/llvm/prebuilt/linux-x86_64/lib/clang/17/include/mmintrin.h:133:19: error: use of undeclared identifier '__builtin_ia32_packsswb'
+    return (__m64)__builtin_ia32_packsswb((__v4hi)__m1, (__v4hi)__m2);
+                  ^
+/home/noname/android/ndk/toolchains/llvm/prebuilt/linux-x86_64/lib/clang/17/include/mmintrin.h:163:19: error: use of undeclared identifier '__builtin_ia32_packssdw'
+    return (__m64)__builtin_ia32_packssdw((__v2si)__m1, (__v2si)__m2);
+                  ^
+/home/noname/android/ndk/toolchains/llvm/prebuilt/linux-x86_64/lib/clang/17/include/mmintrin.h:193:19: error: use of undeclared identifier '__builtin_ia32_packuswb'
+    return (__m64)__builtin_ia32_packuswb((__v4hi)__m1, (__v4hi)__m2);
+                  ^
+/home/noname/android/ndk/toolchains/llvm/prebuilt/linux-x86_64/lib/clang/17/include/mmintrin.h:220:19: error: use of undeclared identifier '__builtin_ia32_punpckhbw'
+    return (__m64)__builtin_ia32_punpckhbw((__v8qi)__m1, (__v8qi)__m2);
+                  ^
+/home/noname/android/ndk/toolchains/llvm/prebuilt/linux-x86_64/lib/clang/17/include/mmintrin.h:243:19: error: use of undeclared identifier '__builtin_ia32_punpckhwd'
+    return (__m64)__builtin_ia32_punpckhwd((__v4hi)__m1, (__v4hi)__m2);
+                  ^
+/home/noname/android/ndk/toolchains/llvm/prebuilt/linux-x86_64/lib/clang/17/include/mmintrin.h:264:19: error: use of undeclared identifier '__builtin_ia32_punpckhdq'
+    return (__m64)__builtin_ia32_punpckhdq((__v2si)__m1, (__v2si)__m2);
+                  ^
+/home/noname/android/ndk/toolchains/llvm/prebuilt/linux-x86_64/lib/clang/17/include/mmintrin.h:291:19: error: use of undeclared identifier '__builtin_ia32_punpcklbw'
+    return (__m64)__builtin_ia32_punpcklbw((__v8qi)__m1, (__v8qi)__m2);
+                  ^
+/home/noname/android/ndk/toolchains/llvm/prebuilt/linux-x86_64/lib/clang/17/include/mmintrin.h:314:19: error: use of undeclared identifier '__builtin_ia32_punpcklwd'
+    return (__m64)__builtin_ia32_punpcklwd((__v4hi)__m1, (__v4hi)__m2);
+                  ^
+/home/noname/android/ndk/toolchains/llvm/prebuilt/linux-x86_64/lib/clang/17/include/mmintrin.h:335:19: error: use of undeclared identifier '__builtin_ia32_punpckldq'
+    return (__m64)__builtin_ia32_punpckldq((__v2si)__m1, (__v2si)__m2);
+                  ^
+fatal error: too many errors emitted, stopping now [-ferror-limit=]
+20 errors generated.
+In file included from src/rehlmaster/src/utils.cpp:1:
+In file included from src/rehlmaster/src/ex_rehlds_api.h:3:
+In file included from src/rehlmaster/dep/rehlsdk/engine/rehlds_api.h:31:
+In file included from src/rehlmaster/dep/rehlsdk/engine/rehlds_interfaces.h:39:
+In file included from src/rehlmaster/dep/rehlsdk/public/FileSystem.h:31:
+In file included from src/rehlmaster/dep/rehlsdk/public/interface.h:18:
+In file included from src/rehlmaster/dep/rehlsdk/engine/osconfig.h:93:
+/home/noname/android/ndk/toolchains/llvm/prebuilt/linux-x86_64/lib/clang/17/include/smmintrin.h:14:2: error: "This header is only meant to be used on x86 and x64 architecture"
+#error "This header is only meant to be used on x86 and x64 architecture"
+ ^
+In file included from src/rehlmaster/src/utils.cpp:1:
+In file included from src/rehlmaster/src/ex_rehlds_api.h:3:
+In file included from src/rehlmaster/dep/rehlsdk/engine/rehlds_api.h:31:
+In file included from src/rehlmaster/dep/rehlsdk/engine/rehlds_interfaces.h:39:
+In file included from src/rehlmaster/dep/rehlsdk/public/FileSystem.h:31:
+In file included from src/rehlmaster/dep/rehlsdk/public/interface.h:18:
+In file included from src/rehlmaster/dep/rehlsdk/engine/osconfig.h:93:
+In file included from /home/noname/android/ndk/toolchains/llvm/prebuilt/linux-x86_64/lib/clang/17/include/smmintrin.h:17:
+/home/noname/android/ndk/toolchains/llvm/prebuilt/linux-x86_64/lib/clang/17/include/tmmintrin.h:14:2: error: "This header is only meant to be used on x86 and x64 architecture"
+#error "This header is only meant to be used on x86 and x64 architecture"
+ ^
+In file included from src/rehlmaster/src/utils.cpp:1:
+In file included from src/rehlmaster/src/ex_rehlds_api.h:3:
+In file included from src/rehlmaster/dep/rehlsdk/engine/rehlds_api.h:31:
+In file included from src/rehlmaster/dep/rehlsdk/engine/rehlds_interfaces.h:39:
+In file included from src/rehlmaster/dep/rehlsdk/public/FileSystem.h:31:
+In file included from src/rehlmaster/dep/rehlsdk/public/interface.h:18:
+In file included from src/rehlmaster/dep/rehlsdk/engine/osconfig.h:93:
+In file included from /home/noname/android/ndk/toolchains/llvm/prebuilt/linux-x86_64/lib/clang/17/include/smmintrin.h:17:
+In file included from /home/noname/android/ndk/toolchains/llvm/prebuilt/linux-x86_64/lib/clang/17/include/tmmintrin.h:17:
+/home/noname/android/ndk/toolchains/llvm/prebuilt/linux-x86_64/lib/clang/17/include/pmmintrin.h:14:2: error: "This header is only meant to be used on x86 and x64 architecture"
+#error "This header is only meant to be used on x86 and x64 architecture"
+ ^
+In file included from src/rehlmaster/src/utils.cpp:1:
+In file included from src/rehlmaster/src/ex_rehlds_api.h:3:
+In file included from src/rehlmaster/dep/rehlsdk/engine/rehlds_api.h:31:
+In file included from src/rehlmaster/dep/rehlsdk/engine/rehlds_interfaces.h:39:
+In file included from src/rehlmaster/dep/rehlsdk/public/FileSystem.h:31:
+In file included from src/rehlmaster/dep/rehlsdk/public/interface.h:18:
+In file included from src/rehlmaster/dep/rehlsdk/engine/osconfig.h:93:
+In file included from /home/noname/android/ndk/toolchains/llvm/prebuilt/linux-x86_64/lib/clang/17/include/smmintrin.h:17:
+In file included from /home/noname/android/ndk/toolchains/llvm/prebuilt/linux-x86_64/lib/clang/17/include/tmmintrin.h:17:
+In file included from /home/noname/android/ndk/toolchains/llvm/prebuilt/linux-x86_64/lib/clang/17/include/pmmintrin.h:17:
+/home/noname/android/ndk/toolchains/llvm/prebuilt/linux-x86_64/lib/clang/17/include/emmintrin.h:14:2: error: "This header is only meant to be used on x86 and x64 architecture"
+#error "This header is only meant to be used on x86 and x64 architecture"
+ ^
+In file included from src/rehlmaster/src/utils.cpp:1:
+In file included from src/rehlmaster/src/ex_rehlds_api.h:3:
+In file included from src/rehlmaster/dep/rehlsdk/engine/rehlds_api.h:31:
+In file included from src/rehlmaster/dep/rehlsdk/engine/rehlds_interfaces.h:39:
+In file included from src/rehlmaster/dep/rehlsdk/public/FileSystem.h:31:
+In file included from src/rehlmaster/dep/rehlsdk/public/interface.h:18:
+In file included from src/rehlmaster/dep/rehlsdk/engine/osconfig.h:93:
+In file included from /home/noname/android/ndk/toolchains/llvm/prebuilt/linux-x86_64/lib/clang/17/include/smmintrin.h:17:
+In file included from /home/noname/android/ndk/toolchains/llvm/prebuilt/linux-x86_64/lib/clang/17/include/tmmintrin.h:17:
+In file included from /home/noname/android/ndk/toolchains/llvm/prebuilt/linux-x86_64/lib/clang/17/include/pmmintrin.h:17:
+In file included from /home/noname/android/ndk/toolchains/llvm/prebuilt/linux-x86_64/lib/clang/17/include/emmintrin.h:17:
+/home/noname/android/ndk/toolchains/llvm/prebuilt/linux-x86_64/lib/clang/17/include/xmmintrin.h:14:2: error: "This header is only meant to be used on x86 and x64 architecture"
+#error "This header is only meant to be used on x86 and x64 architecture"
+ ^
+In file included from src/rehlmaster/src/utils.cpp:1:
+In file included from src/rehlmaster/src/ex_rehlds_api.h:3:
+In file included from src/rehlmaster/dep/rehlsdk/engine/rehlds_api.h:31:
+In file included from src/rehlmaster/dep/rehlsdk/engine/rehlds_interfaces.h:39:
+In file included from src/rehlmaster/dep/rehlsdk/public/FileSystem.h:31:
+In file included from src/rehlmaster/dep/rehlsdk/public/interface.h:18:
+In file included from src/rehlmaster/dep/rehlsdk/engine/osconfig.h:93:
+In file included from /home/noname/android/ndk/toolchains/llvm/prebuilt/linux-x86_64/lib/clang/17/include/smmintrin.h:17:
+In file included from /home/noname/android/ndk/toolchains/llvm/prebuilt/linux-x86_64/lib/clang/17/include/tmmintrin.h:17:
+In file included from /home/noname/android/ndk/toolchains/llvm/prebuilt/linux-x86_64/lib/clang/17/include/pmmintrin.h:17:
+In file included from /home/noname/android/ndk/toolchains/llvm/prebuilt/linux-x86_64/lib/clang/17/include/emmintrin.h:17:
+In file included from /home/noname/android/ndk/toolchains/llvm/prebuilt/linux-x86_64/lib/clang/17/include/xmmintrin.h:17:
+/home/noname/android/ndk/toolchains/llvm/prebuilt/linux-x86_64/lib/clang/17/include/mmintrin.h:14:2: error: "This header is only meant to be used on x86 and x64 architecture"
+#error "This header is only meant to be used on x86 and x64 architecture"
+ ^
+/home/noname/android/ndk/toolchains/llvm/prebuilt/linux-x86_64/lib/clang/17/include/mmintrin.h:37:5: error: use of undeclared identifier '__builtin_ia32_emms'; did you mean '__builtin_isless'?
+    __builtin_ia32_emms();
+    ^
+/home/noname/android/ndk/toolchains/llvm/prebuilt/linux-x86_64/bin/../sysroot/usr/include/c++/v1/math.h:507:10: note: '__builtin_isless' declared here
+  return __builtin_isless((type)__x, (type)__y);
+         ^
+In file included from src/rehlmaster/src/utils.cpp:1:
+In file included from src/rehlmaster/src/ex_rehlds_api.h:3:
+In file included from src/rehlmaster/dep/rehlsdk/engine/rehlds_api.h:31:
+In file included from src/rehlmaster/dep/rehlsdk/engine/rehlds_interfaces.h:39:
+In file included from src/rehlmaster/dep/rehlsdk/public/FileSystem.h:31:
+In file included from src/rehlmaster/dep/rehlsdk/public/interface.h:18:
+In file included from src/rehlmaster/dep/rehlsdk/engine/osconfig.h:93:
+In file included from /home/noname/android/ndk/toolchains/llvm/prebuilt/linux-x86_64/lib/clang/17/include/smmintrin.h:17:
+In file included from /home/noname/android/ndk/toolchains/llvm/prebuilt/linux-x86_64/lib/clang/17/include/tmmintrin.h:17:
+In file included from /home/noname/android/ndk/toolchains/llvm/prebuilt/linux-x86_64/lib/clang/17/include/pmmintrin.h:17:
+In file included from /home/noname/android/ndk/toolchains/llvm/prebuilt/linux-x86_64/lib/clang/17/include/emmintrin.h:17:
+In file included from /home/noname/android/ndk/toolchains/llvm/prebuilt/linux-x86_64/lib/clang/17/include/xmmintrin.h:17:
+/home/noname/android/ndk/toolchains/llvm/prebuilt/linux-x86_64/lib/clang/17/include/mmintrin.h:37:25: error: too few arguments to function call, expected 2, have 0
+    __builtin_ia32_emms();
+    ~~~~~~~~~~~~~~~~~~~~^
+/home/noname/android/ndk/toolchains/llvm/prebuilt/linux-x86_64/lib/clang/17/include/mmintrin.h:54:19: error: use of undeclared identifier '__builtin_ia32_vec_init_v2si'
+    return (__m64)__builtin_ia32_vec_init_v2si(__i, 0);
+                  ^
+/home/noname/android/ndk/toolchains/llvm/prebuilt/linux-x86_64/lib/clang/17/include/mmintrin.h:71:12: error: use of undeclared identifier '__builtin_ia32_vec_ext_v2si'
+    return __builtin_ia32_vec_ext_v2si((__v2si)__m, 0);
+           ^
+/home/noname/android/ndk/toolchains/llvm/prebuilt/linux-x86_64/lib/clang/17/include/mmintrin.h:133:19: error: use of undeclared identifier '__builtin_ia32_packsswb'
+    return (__m64)__builtin_ia32_packsswb((__v4hi)__m1, (__v4hi)__m2);
+                  ^
+/home/noname/android/ndk/toolchains/llvm/prebuilt/linux-x86_64/lib/clang/17/include/mmintrin.h:163:19: error: use of undeclared identifier '__builtin_ia32_packssdw'
+    return (__m64)__builtin_ia32_packssdw((__v2si)__m1, (__v2si)__m2);
+                  ^
+/home/noname/android/ndk/toolchains/llvm/prebuilt/linux-x86_64/lib/clang/17/include/mmintrin.h:193:19: error: use of undeclared identifier '__builtin_ia32_packuswb'
+    return (__m64)__builtin_ia32_packuswb((__v4hi)__m1, (__v4hi)__m2);
+                  ^
+/home/noname/android/ndk/toolchains/llvm/prebuilt/linux-x86_64/lib/clang/17/include/mmintrin.h:220:19: error: use of undeclared identifier '__builtin_ia32_punpckhbw'
+    return (__m64)__builtin_ia32_punpckhbw((__v8qi)__m1, (__v8qi)__m2);
+                  ^
+/home/noname/android/ndk/toolchains/llvm/prebuilt/linux-x86_64/lib/clang/17/include/mmintrin.h:243:19: error: use of undeclared identifier '__builtin_ia32_punpckhwd'
+    return (__m64)__builtin_ia32_punpckhwd((__v4hi)__m1, (__v4hi)__m2);
+                  ^
+/home/noname/android/ndk/toolchains/llvm/prebuilt/linux-x86_64/lib/clang/17/include/mmintrin.h:264:19: error: use of undeclared identifier '__builtin_ia32_punpckhdq'
+    return (__m64)__builtin_ia32_punpckhdq((__v2si)__m1, (__v2si)__m2);
+                  ^
+/home/noname/android/ndk/toolchains/llvm/prebuilt/linux-x86_64/lib/clang/17/include/mmintrin.h:291:19: error: use of undeclared identifier '__builtin_ia32_punpcklbw'
+    return (__m64)__builtin_ia32_punpcklbw((__v8qi)__m1, (__v8qi)__m2);
+                  ^
+/home/noname/android/ndk/toolchains/llvm/prebuilt/linux-x86_64/lib/clang/17/include/mmintrin.h:314:19: error: use of undeclared identifier '__builtin_ia32_punpcklwd'
+    return (__m64)__builtin_ia32_punpcklwd((__v4hi)__m1, (__v4hi)__m2);
+                  ^
+/home/noname/android/ndk/toolchains/llvm/prebuilt/linux-x86_64/lib/clang/17/include/mmintrin.h:335:19: error: use of undeclared identifier '__builtin_ia32_punpckldq'
+    return (__m64)__builtin_ia32_punpckldq((__v2si)__m1, (__v2si)__m2);
+                  ^
+fatal error: too many errors emitted, stopping now [-ferror-limit=]
+20 errors generated.
++ echo 'REHLMASTER BIONIC ARMv7 FAILED'
+REHLMASTER BIONIC ARMv7 FAILED
++ fail=1
++ mkdir -p build/hlmaster-bionic-armv7
++ /home/noname/android/ndk/toolchains/llvm/prebuilt/linux-x86_64/bin/armv7a-linux-androideabi24-clang -O3 -w -s -fvisibility=hidden -fno-strict-aliasing -fno-strict-overflow src/hlmaster/hlmaster.c -o build/hlmaster-bionic-armv7/hlmaster
+In file included from src/hlmaster/hlmaster.c:3:
+src/hlmaster/hlmaster.h:44:16: error: invalid output constraint '=D' in asm
+      : [Dest] "=D"(Dest), [Count] "=c"(Count)
+               ^
+1 error generated.
++ echo 'HLMASTER BIONIC ARMv7 FAILED'
+HLMASTER BIONIC ARMv7 FAILED
++ fail=1
++ echo '=== DONE fail=1 ==='
+=== DONE fail=1 ===
++ exit 1
