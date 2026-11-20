@@ -1,0 +1,23 @@
+# fetched/cloned (scripts/fetch-sources.sh)
+src/
+
+# fetched (scripts/fetch-toolchains.sh)
+toolchains/
+
+# build outputs (build/build-*.sh)
+build/rehlds-*/
+build/metamod-*/
+build/regamedll-*/
+build/reunion-*/
+build/rehlmaster-*/
+build/logs/
+
+# assembly output (scripts/assemble-dropin.sh)
+dist/
+tools/smoketest/dltest-aarch64
+tools/smoketest/dltest-armv7
+tools/smoketest/steamclient_stub-aarch64.so
+tools/smoketest/steamclient_stub-armv7.so
+
+# qemu snapshot (optional local convenience)
+tools/qemu/

@@ -1,0 +1,34 @@
+From ee2c0d2695ed1307b3ace6634c7dd9cc3132b4f9 Mon Sep 17 00:00:00 2001
+From: cs16-arm <cs16-arm@local>
+Date: Fri, 20 Nov 2026 23:27:33 +0200
+Subject: [PATCH] arm: drop x86 intrin includes from dep rehlsdk osconfig.h
+
+smmintrin/xmmintrin are x86-only; guard them so the plugin builds
+with the armv7/aarch64 cross toolchains (-static-libstdc++ so the
+.so has no target libstdc++ dependency).
+
+see ReHLDS arm branch (same toolchain assumptions fanned out)
+---
+ dep/rehlsdk/engine/osconfig.h | 6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
+
+diff --git a/dep/rehlsdk/engine/osconfig.h b/dep/rehlsdk/engine/osconfig.h
+index 43a358d..a884b15 100644
+--- a/dep/rehlsdk/engine/osconfig.h
++++ b/dep/rehlsdk/engine/osconfig.h
+@@ -90,8 +90,10 @@
+ #include <fstream>
+ #include <iomanip>
+ 
+-#include <smmintrin.h>
+-#include <xmmintrin.h>
++#if !defined(__arm__) && !defined(__aarch64__)
++	#include <smmintrin.h>
++	#include <xmmintrin.h>
++#endif
+ 
+ 
+ #ifdef _WIN32 // WINDOWS
+-- 
+2.56.1
+

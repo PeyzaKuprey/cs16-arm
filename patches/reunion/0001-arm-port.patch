@@ -1,0 +1,340 @@
+From d36f3a43abf9c5bc0befcdf7627e5c6640822eda Mon Sep 17 00:00:00 2001
+From: cs16-arm <cs16-arm@local>
+Date: Fri, 20 Nov 2026 23:27:28 +0200
+Subject: [PATCH] arm: build for armv7-a / aarch64
+
+- CMakeLists: no -m32/-msse3 on ARM, PIC for the shared object,
+  arch-suffixed output (reunion_mm_armv7.so / reunion_mm_aarch64.so),
+  -fpermissive on ARM only
+- Rijndael / RijndaelChanged: S-box tables are explicit signed char.
+  ARM's char is unsigned by default, so negative table initializers
+  were brace-init narrowing errors (x86 behavior unchanged; all users
+  mask & 0xFF or cast through unsigned char)
+- dep rehlsdk: cpuid (sys_shared.cpp) and immintrin (crc32c.cpp)
+  are x86-only, guarded out on ARM; osconfig.h drops x86 intrin
+- reunion_authorizers: min(size_t, uint32_t) mixed types break
+  aarch64 (size_t=unsigned long there); constants are size_t now
+- pin reunion/version/appversion.h (gitignored upstream, but our
+  build depends on it: appversion.sh wants a sibling ReHLDS checkout
+  this tree doesn't carry)
+
+see ReHLDS arm branch (same toolchain assumptions fanned out)
+---
+ dep/rehlsdk/engine/crc32c.cpp       |  3 ++
+ dep/rehlsdk/engine/osconfig.h       |  6 ++--
+ dep/rehlsdk/engine/sys_shared.cpp   |  8 +++--
+ reunion/CMakeLists.txt              | 55 ++++++++++++++++++++++-------
+ reunion/src/Rijndael.cpp            |  6 ++--
+ reunion/src/Rijndael.h              |  6 ++--
+ reunion/src/RijndaelChanged.cpp     |  6 ++--
+ reunion/src/RijndaelChanged.h       |  6 ++--
+ reunion/src/reunion_authorizers.cpp |  4 +--
+ reunion/version/appversion.h        | 18 ++++++++++
+ 10 files changed, 88 insertions(+), 30 deletions(-)
+ create mode 100644 reunion/version/appversion.h
+
+diff --git a/dep/rehlsdk/engine/crc32c.cpp b/dep/rehlsdk/engine/crc32c.cpp
+index 1d6fa9b..0fbac77 100644
+--- a/dep/rehlsdk/engine/crc32c.cpp
++++ b/dep/rehlsdk/engine/crc32c.cpp
+@@ -14,7 +14,10 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
+ 
+ #include "crc32c.h"
+ #include "sys_shared.h"
++// immintrin.h is x86-only and only needed for the REHLDS_SSE path below
++#if defined(REHLDS_SSE) && !defined(__arm__) && !defined(__aarch64__)
+ #include "immintrin.h"
++#endif
+ 
+ /*****************************************************************/
+ /*                                                               */
+diff --git a/dep/rehlsdk/engine/osconfig.h b/dep/rehlsdk/engine/osconfig.h
+index 9c96e0c..9527953 100644
+--- a/dep/rehlsdk/engine/osconfig.h
++++ b/dep/rehlsdk/engine/osconfig.h
+@@ -88,8 +88,10 @@
+ #include <fstream>
+ #include <iomanip>
+ 
+-#include <smmintrin.h>
+-#include <xmmintrin.h>
++#if !defined(__arm__) && !defined(__aarch64__)
++	#include <smmintrin.h>
++	#include <xmmintrin.h>
++#endif
+ 
+ 
+ #ifdef _WIN32 // WINDOWS
+diff --git a/dep/rehlsdk/engine/sys_shared.cpp b/dep/rehlsdk/engine/sys_shared.cpp
+index 16fd966..91aaffb 100644
+--- a/dep/rehlsdk/engine/sys_shared.cpp
++++ b/dep/rehlsdk/engine/sys_shared.cpp
+@@ -27,9 +27,10 @@
+ */
+ #include "sys_shared.h"
+ 
+-#if defined(__GNUC__)
++// cpuid is x86-only; on ARM the cpuinfo fields simply stay zeroed
++#if defined(__GNUC__) && (defined(__i386__) || defined(__x86_64__))
+ #include <cpuid.h>
+-#elif _MSC_VER >= 1400 && !defined(ASMLIB_H)
++#elif _MSC_VER >= 1400 && !defined(ASMLIB_H) && !defined(_M_ARM) && !defined(_M_ARM64)
+ #include <intrin.h>	// __cpuidex
+ #endif
+ 
+@@ -45,6 +46,8 @@ cpuinfo_t cpuinfo;
+ 
+ void Sys_CheckCpuInstructionsSupport(void)
+ {
++	// cpuid is x86-only; on ARM leave cpuinfo zeroed (no SSE-family features)
++#if !defined(__arm__) && !defined(__aarch64__) && !defined(_M_ARM) && !defined(_M_ARM64)
+ 	unsigned int cpuid_data[4]{};
+ 
+ #if defined ASMLIB_H
+@@ -71,4 +74,5 @@ void Sys_CheckCpuInstructionsSupport(void)
+ #endif
+ 
+ 	cpuinfo.avx2 = (cpuid_data[1] & AVX2_FLAG) ? 1 : 0; // ebx
++#endif
+ }
+diff --git a/reunion/CMakeLists.txt b/reunion/CMakeLists.txt
+index 6593ed4..c366ed2 100644
+--- a/reunion/CMakeLists.txt
++++ b/reunion/CMakeLists.txt
+@@ -29,10 +29,24 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
+ # Avoid -fPIC option
+ set(CMAKE_SHARED_LIBRARY_CXX_FLAGS "")
+ 
+-set(COMPILE_FLAGS "-m32 -U_FORTIFY_SOURCE")
+-set(LINK_FLAGS "-m32 -s")
++set(COMPILE_FLAGS "-U_FORTIFY_SOURCE")
++set(LINK_FLAGS "")
++
++if (CMAKE_SYSTEM_PROCESSOR MATCHES "aarch64|arm64|armv7|^arm$")
++	# ARM targets: no -m32/-msse3, PIC required for shared objects
++	set(COMPILE_FLAGS "${COMPILE_FLAGS} -fPIC")
++else()
++	set(COMPILE_FLAGS "${COMPILE_FLAGS} -m32")
++	set(LINK_FLAGS "-m32")
++endif()
+ 
+ set(COMPILE_FLAGS "${COMPILE_FLAGS} -Wall -fno-exceptions -fno-builtin -Wno-unknown-pragmas -Wno-write-strings -fvisibility=hidden -fvisibility-inlines-hidden -fno-rtti")
++# ARM's char is unsigned by default: Rijndael's signed S-box tables then
++# trigger brace-init narrowing errors. -fpermissive (same flag ReHLDS uses)
++# downgrades them to warnings.
++if (CMAKE_SYSTEM_PROCESSOR MATCHES "aarch64|arm64|armv7|^arm$")
++	set(COMPILE_FLAGS "${COMPILE_FLAGS} -fpermissive")
++endif()
+ 
+ # Remove noxref code and data
+ set(COMPILE_FLAGS "${COMPILE_FLAGS} -ffunction-sections -fdata-sections")
+@@ -68,12 +82,12 @@ else()
+ 	# Produce code optimized for the most common IA32/AMD64/EM64T processors.
+ 	# As new processors are deployed in the marketplace, the behavior of this option will change.
+ 	set(COMPILE_FLAGS "${COMPILE_FLAGS} \
+-		-mtune=generic -msse3\
+ 		-fno-sized-deallocation -Wno-strict-aliasing")
++
+ endif()
+ 
+-# GCC >= 8.3
+-if (CMAKE_CXX_COMPILER_VERSION VERSION_GREATER_EQUAL 8.0)
++# GCC >= 8.3 (x86-only flag)
++if (CMAKE_CXX_COMPILER_VERSION VERSION_GREATER_EQUAL 8.0 AND NOT CMAKE_SYSTEM_PROCESSOR MATCHES "aarch64|arm64|armv7|^arm$")
+ 	set(COMPILE_FLAGS "${COMPILE_FLAGS} -fcf-protection=none")
+ endif()
+ 
+@@ -129,6 +143,12 @@ set(REUNION_SRCS
+ 
+ add_library(reunion SHARED ${appversion.sh})
+ 
++if (CMAKE_SYSTEM_PROCESSOR MATCHES "aarch64|arm64")
++	set(REUNION_OUTPUT_NAME reunion_mm_aarch64)
++elseif (CMAKE_SYSTEM_PROCESSOR MATCHES "armv7|^arm$")
++	set(REUNION_OUTPUT_NAME reunion_mm_armv7)
++endif()
++
+ if (NOT TARGET appversion)
+ 	add_custom_target(appversion DEPENDS COMMAND "${PROJECT_SOURCE_DIR}/../version/appversion.sh" "${PROJECT_SOURCE_DIR}/..")
+ endif()
+@@ -166,10 +186,21 @@ if (USE_STATIC_LIBSTDC)
+ 	set(LINK_FLAGS "${LINK_FLAGS} -static-libgcc -static-libstdc++")
+ endif()
+ 
+-set_target_properties(reunion PROPERTIES
+-	OUTPUT_NAME reunion_mm_i386
+-	PREFIX ""
+-	COMPILE_FLAGS ${COMPILE_FLAGS}
+-	LINK_FLAGS ${LINK_FLAGS}
+-	POSITION_INDEPENDENT_CODE OFF
+-)
++if (REUNION_OUTPUT_NAME)
++	# ARM: PIC is required for shared objects; keep the arch-suffixed name
++	set_target_properties(reunion PROPERTIES
++		OUTPUT_NAME ${REUNION_OUTPUT_NAME}
++		PREFIX ""
++		COMPILE_FLAGS ${COMPILE_FLAGS}
++		LINK_FLAGS ${LINK_FLAGS}
++		POSITION_INDEPENDENT_CODE ON
++	)
++else()
++	set_target_properties(reunion PROPERTIES
++		OUTPUT_NAME reunion_mm_i386
++		PREFIX ""
++		COMPILE_FLAGS ${COMPILE_FLAGS}
++		LINK_FLAGS ${LINK_FLAGS}
++		POSITION_INDEPENDENT_CODE OFF
++	)
++endif()
+diff --git a/reunion/src/Rijndael.cpp b/reunion/src/Rijndael.cpp
+index ab8858b..7542a37 100644
+--- a/reunion/src/Rijndael.cpp
++++ b/reunion/src/Rijndael.cpp
+@@ -40,7 +40,7 @@ const int CRijndael::sm_log[256] =
+ 	103, 74, 237, 222, 197, 49, 254, 24, 13, 99, 140, 128, 192, 247, 112, 7
+ };
+ 
+-const char CRijndael::sm_S[256] =
++const signed char CRijndael::sm_S[256] =
+ {
+ 	99, 124, 119, 123, -14, 107, 111, -59, 48, 1, 103, 43, -2, -41, -85, 118,
+ 	-54, -126, -55, 125, -6, 89, 71, -16, -83, -44, -94, -81, -100, -92, 114, -64,
+@@ -60,7 +60,7 @@ const char CRijndael::sm_S[256] =
+ 	-116, -95, -119, 13, -65, -26, 66, 104, 65, -103, 45, 15, -80, 84, -69, 22
+ };
+ 
+-const char CRijndael::sm_Si[256] =
++const signed char CRijndael::sm_Si[256] =
+ {
+ 	82, 9, 106, -43, 48, 54, -91, 56, -65, 64, -93, -98, -127, -13, -41, -5,
+ 	124, -29, 57, -126, -101, 47, -1, -121, 52, -114, 67, 68, -60, -34, -23, -53,
+@@ -896,7 +896,7 @@ const int CRijndael::sm_U4[256] =
+ 	1568718495, 1418573201, 1335535747, 1184342925
+ };
+ 
+-const char CRijndael::sm_rcon[30] =
++const signed char CRijndael::sm_rcon[30] =
+ {
+ 	1, 2, 4, 8, 16, 32,
+ 	64, -128, 27, 54, 108, -40,
+diff --git a/reunion/src/Rijndael.h b/reunion/src/Rijndael.h
+index d058488..4716c05 100644
+--- a/reunion/src/Rijndael.h
++++ b/reunion/src/Rijndael.h
+@@ -135,8 +135,8 @@ public:
+ private:
+ 	static const int sm_alog[256];
+ 	static const int sm_log[256];
+-	static const char sm_S[256];
+-    static const char sm_Si[256];
++	static const signed char sm_S[256];
++    static const signed char sm_Si[256];
+     static const int sm_T1[256];
+     static const int sm_T2[256];
+     static const int sm_T3[256];
+@@ -149,7 +149,7 @@ private:
+     static const int sm_U2[256];
+ 	static const int sm_U3[256];
+ 	static const int sm_U4[256];
+-    static const char sm_rcon[30];
++    static const signed char sm_rcon[30];
+     static const int sm_shifts[3][4][2];
+ 
+ 	//Key Initialization Flag
+diff --git a/reunion/src/RijndaelChanged.cpp b/reunion/src/RijndaelChanged.cpp
+index 0a7c93b..6bd5e97 100644
+--- a/reunion/src/RijndaelChanged.cpp
++++ b/reunion/src/RijndaelChanged.cpp
+@@ -40,7 +40,7 @@ const int CRijndaelChanged::sm_log[256] =
+ 	103, 74, 237, 222, 197, 49, 254, 24, 13, 99, 140, 128, 192, 247, 112, 7
+ };
+ 
+-const char CRijndaelChanged::sm_S[256] =
++const signed char CRijndaelChanged::sm_S[256] =
+ {
+ 	99, 124, 119, 123, -14, 107, 111, -59, 48, 1, 103, 43, -2, -41, -85, 118,
+ 	-54, -126, -55, 125, -6, 89, 71, -16, -83, -44, -94, -81, -100, -92, 114, -64,
+@@ -60,7 +60,7 @@ const char CRijndaelChanged::sm_S[256] =
+ 	-116, -95, -119, 13, -65, -26, 66, 104, 65, -103, 45, 15, -80, 84, -69, 22
+ };
+ 
+-const char CRijndaelChanged::sm_Si[256] =
++const signed char CRijndaelChanged::sm_Si[256] =
+ {
+ 	82, 9, 106, -43, 48, 54, -91, 56, -65, 64, -93, -98, -127, -13, -41, -5,
+ 	124, -29, 57, -126, -101, 47, -1, -121, 52, -114, 67, 68, -60, -34, -23, -53,
+@@ -896,7 +896,7 @@ const int CRijndaelChanged::sm_U4[256] =
+ 	1568718495, 1418573201, 1335535747, 1184342925
+ };
+ 
+-const char CRijndaelChanged::sm_rcon[30] =
++const signed char CRijndaelChanged::sm_rcon[30] =
+ {
+ 	1, 2, 4, 8, 16, 32,
+ 	64, -128, 29, 54, 108, -40,
+diff --git a/reunion/src/RijndaelChanged.h b/reunion/src/RijndaelChanged.h
+index 63bdefa..7446281 100644
+--- a/reunion/src/RijndaelChanged.h
++++ b/reunion/src/RijndaelChanged.h
+@@ -135,8 +135,8 @@ public:
+ private:
+ 	static const int sm_alog[256];
+ 	static const int sm_log[256];
+-	static const char sm_S[256];
+-	static const char sm_Si[256];
++	static const signed char sm_S[256];
++	static const signed char sm_Si[256];
+ 	static const int sm_T1[256];
+ 	static const int sm_T2[256];
+ 	static const int sm_T3[256];
+@@ -149,7 +149,7 @@ private:
+ 	static const int sm_U2[256];
+ 	static const int sm_U3[256];
+ 	static const int sm_U4[256];
+-	static const char sm_rcon[30];
++	static const signed char sm_rcon[30];
+ 	static const int sm_shifts[3][4][2];
+ 
+ 	//Key Initialization Flag
+diff --git a/reunion/src/reunion_authorizers.cpp b/reunion/src/reunion_authorizers.cpp
+index 49462bc..9968a15 100644
+--- a/reunion/src/reunion_authorizers.cpp
++++ b/reunion/src/reunion_authorizers.cpp
+@@ -51,8 +51,8 @@ static uint32_t revHash(const char* str, int n = -1)
+ size_t Reunion_AuthKeyMaxLen(authdata_t* authdata)
+ {
+ 	// deprecated auth version reunion2015/reunion2018 has a truncated ticket buffer
+-	const uint32_t MAX_RAWAUTHDATA_2015_TRUNCATED = 16;
+-	const uint32_t MAX_RAWAUTHDATA_2018_TRUNCATED = 31;
++	const size_t MAX_RAWAUTHDATA_2015_TRUNCATED = 16;
++	const size_t MAX_RAWAUTHDATA_2018_TRUNCATED = 31;
+ 
+ 	switch (g_ReunionConfig->getAuthVersion())
+ 	{
+diff --git a/reunion/version/appversion.h b/reunion/version/appversion.h
+new file mode 100644
+index 0000000..3e5b799
+--- /dev/null
++++ b/reunion/version/appversion.h
+@@ -0,0 +1,18 @@
++#ifndef __APPVERSION_H__
++#define __APPVERSION_H__
++
++//
++// This file is generated automatically.
++// Don't edit it.
++//
++
++// Version defines
++// (hand-pinned for the ARM builds: upstream appversion.sh expects a sibling
++// ReHLDS checkout at ../rehlds which this tree does not carry)
++#define APP_VERSION "0.2.0.164"
++#define APP_VERSION_C 0,2,0,164
++#define APP_VERSION_STRD "0.2.0.164"
++#define APP_COMMIT_DATE "Nov 20 2026"
++#define APP_VERSION_FLAGS 0x0L
++
++#endif // __APPVERSION_H__
+-- 
+2.56.1
+

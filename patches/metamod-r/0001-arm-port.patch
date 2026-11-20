@@ -1,0 +1,461 @@
+From e29c244b187713e2051d5db898d2121115e838c8 Mon Sep 17 00:00:00 2001
+From: cs16-arm <cs16-arm@local>
+Date: Fri, 20 Nov 2026 23:27:04 +0200
+Subject: [PATCH 1/2] arm: add METAMOD_CPP_CALLBACKS mode; armv7 target
+
+- armv7: no AsmJit x86 JIT available; instead of emitting machine
+  code per callback, every hooked engine/gamedll function gets a
+  statically-compiled C++ wrapper with the exact SDK signature that
+  forwards to a generic dispatcher (callback_cpp.h). The dispatcher
+  reads the live plugin list per call (JIT unrolls a snapshot), so
+  plugin load/unload needs no code rebuild; nested hooks save/restore
+  g_metaGlobals like the JIT frame.
+- CDATA_ENTRY grows wrapper + persistent jd fields under the new
+  mode; compile paths install the wrapper fn ptr (or pfn_original
+  fallback) instead of JIT output.
+- armv7 output name metamod_armv7.so (linuxarmv7 compat-libc dir);
+  aarch64 keeps the ported AsmJit a64 JIT path.
+
+see ReHLDS arm branch (same toolchain assumptions fanned out)
+---
+ metamod/CMakeLists.txt     |   8 ++
+ metamod/src/callback_cpp.h | 169 +++++++++++++++++++++++++++++++++++++
+ metamod/src/callback_jit.h |   8 ++
+ metamod/src/dllapi.cpp     |  16 ++++
+ metamod/src/engine_api.cpp |   6 ++
+ 5 files changed, 207 insertions(+)
+ create mode 100644 metamod/src/callback_cpp.h
+
+diff --git a/metamod/CMakeLists.txt b/metamod/CMakeLists.txt
+index 80ca017..fbee9d1 100644
+--- a/metamod/CMakeLists.txt
++++ b/metamod/CMakeLists.txt
+@@ -53,6 +53,14 @@ if (BUILD_AARCH64)
+ 	set(COMPAT_GLIBC_LIB_DIR "linuxaarch64")
+ 	set(METAMOD_ARCH_X86 OFF)
+ 	set(METAMOD_ARCH_AARCH64 ON)
++elseif (CMAKE_SYSTEM_PROCESSOR MATCHES "armv7|^arm$")
++	# 32-bit ARM has no -m32 flag; pic required, -mtune=cortex-a53 comes
++	# from the toolchain file (-mtune=generic is unsupported by gcc on ARM).
++	set(ARCH_FLAG "")
++	set(METAMOD_OUTPUT_NAME "metamod_armv7")
++	set(COMPAT_GLIBC_LIB_DIR "linuxarmv7")
++	set(METAMOD_ARCH_X86 OFF)
++	set(METAMOD_ARCH_AARCH64 OFF)
+ elseif (BUILD_64BIT)
+ 	set(ARCH_FLAG "-m64")
+ 	set(METAMOD_OUTPUT_NAME "metamod_amd64")
+diff --git a/metamod/src/callback_cpp.h b/metamod/src/callback_cpp.h
+new file mode 100644
+index 0000000..a23ae4a
+--- /dev/null
++++ b/metamod/src/callback_cpp.h
+@@ -0,0 +1,169 @@
++#pragma once
++// C++ (non-JIT) callback implementation for targets without an AsmJit backend
++// (32-bit ARM / armv7). Faithful translation of the orchestration in
++// callback_jit_orchestration.cpp: instead of emitting machine code per
++// callback, each engine/gamedll function gets a statically-compiled C++
++// wrapper with the exact SDK signature that forwards to a generic dispatcher.
++//
++// The dispatcher reads the live plugin list on every call (the JIT unrolls a
++// snapshot at compile time and rebuilds on plugin load/unload); because the
++// wrapper reads live state, no code rebuild is required. Nested callbacks
++// save/restore g_metaGlobals on the stack exactly like the JIT frame does.
++
++#include "precompiled.h"
++#include "callback_jit.h"
++#include "meta_api.h"
++#include "mplugin.h"
++#include "mlist.h"
++#include "utils.h"
++
++#include <cstdarg>
++#include <cstdio>
++#include <type_traits>
++
++namespace cb_cpp {
++
++// Per-(table,offset) persistent jitdata slot. The wrapper reads it live.
++template<typename S, size_t Off>
++struct jd_slot { static jitdata_t jd; };
++template<typename S, size_t Off>
++jitdata_t jd_slot<S, Off>::jd;
++
++// Return-value storage; void specialization holds nothing.
++template<typename Ret>
++struct ret_storage {
++	Ret orig;
++	Ret over;
++	ret_storage() : orig(), over() {}
++	void* orig_addr() { return &orig; }
++	void* over_addr() { return &over; }
++};
++template<>
++struct ret_storage<void> {
++	void* orig_addr() { return nullptr; }
++	void* over_addr() { return nullptr; }
++};
++
++template<typename Ret>
++static inline Ret default_orig() {
++	if constexpr (std::is_floating_point<Ret>::value)
++		return Ret(0);
++	else
++		return (Ret)(uintptr_t)1;	// ShouldCollide-style quirk: TRUE when no original
++}
++
++// The generic dispatcher. Mirrors emit_orchestration().
++template<typename Ret, typename... Args>
++Ret dispatch(jitdata_t* jd, Args... args) {
++	using Fn = Ret(*)(Args...);
++
++	meta_globals_t backup = g_metaGlobals;
++	g_metaGlobals.esp_save = reinterpret_cast<uint32*>(&backup);
++
++	ret_storage<Ret> ret;
++	g_metaGlobals.mres = MRES_UNSET;
++	g_metaGlobals.status = MRES_UNSET;
++	g_metaGlobals.orig_ret = ret.orig_addr();
++	g_metaGlobals.override_ret = ret.over_addr();
++
++	// Pre-hook: metamod's own mm_hook.
++	if (jd->mm_hook && jd->mm_hook_time == P_PRE)
++		reinterpret_cast<Fn>(jd->mm_hook)(args...);
++
++	auto plugin_loop = [&](size_t table_offset) {
++		if (!jd->plugins) return;
++		for (auto plug : *jd->plugins) {
++			if (plug->status() < PL_RUNNING) continue;
++			uintptr_t fn_table = *reinterpret_cast<uintptr_t*>(reinterpret_cast<uintptr_t>(plug) + table_offset);
++			if (!fn_table) continue;
++			if (*reinterpret_cast<uint8*>(plug->status_ptr()) != PL_RUNNING) continue;
++			uintptr_t handler = *reinterpret_cast<uintptr_t*>(fn_table + jd->pfn_offset);
++			if (!handler) continue;
++
++			g_metaGlobals.prev_mres = g_metaGlobals.mres;
++			g_metaGlobals.mres = MRES_IGNORED;
++
++			if constexpr (std::is_void<Ret>::value) {
++				reinterpret_cast<Fn>(handler)(args...);
++			} else {
++				Ret r = reinterpret_cast<Fn>(handler)(args...);
++				if (g_metaGlobals.mres >= MRES_OVERRIDE) ret.over = r;
++			}
++			if (int(g_metaGlobals.mres) > int(g_metaGlobals.status))
++				g_metaGlobals.status = g_metaGlobals.mres;
++		}
++	};
++
++	plugin_loop(jd->table_offset);
++
++	// Original call, with supercede short-circuit.
++	if (g_metaGlobals.status == MRES_SUPERCEDE) {
++		if constexpr (!std::is_void<Ret>::value) ret.orig = ret.over;
++	} else {
++		if (jd->pfn_original) {
++			if constexpr (std::is_void<Ret>::value)
++				reinterpret_cast<Fn>(jd->pfn_original)(args...);
++			else
++				ret.orig = reinterpret_cast<Fn>(jd->pfn_original)(args...);
++		} else {
++			if constexpr (!std::is_void<Ret>::value) ret.orig = default_orig<Ret>();
++		}
++	}
++
++	plugin_loop(jd->post_table_offset);
++
++	if (jd->mm_hook && jd->mm_hook_time == P_POST)
++		reinterpret_cast<Fn>(jd->mm_hook)(args...);
++
++	if constexpr (std::is_void<Ret>::value) {
++		g_metaGlobals = backup;
++		return;
++	} else {
++		Ret result = (g_metaGlobals.status >= MRES_OVERRIDE) ? ret.over : ret.orig;
++		g_metaGlobals = backup;
++		return result;
++	}
++}
++
++// Fixed-signature callback wrapper.
++template<typename Fn, jitdata_t* JD>
++struct cpp_callback;
++template<typename Ret, typename... Args, jitdata_t* JD>
++struct cpp_callback<Ret(*)(Args...), JD> {
++	static Ret call(Args... args) { return dispatch<Ret, Args...>(JD, args...); }
++};
++
++// Variadic callback wrapper. The engine's variadic forwards are all
++// void (A, const char* fmt, ...): format the varargs, then dispatch the
++// fixed (A, "%s", text) form exactly like the JIT's va_entry does.
++template<typename A, jitdata_t* JD>
++struct cpp_callback_va {
++	static void call(A a, const char* fmt, ...) {
++		char text[MAX_STRBUF_LEN];
++		va_list ap;
++		va_start(ap, fmt);
++		vsnprintf(text, sizeof(text), fmt, ap);
++		va_end(ap);
++		dispatch<void, A, const char*, const char*>(JD, a, "%s", text);
++	}
++};
++
++// Wrapper-pointer factory keyed by (struct, offset, member type).
++// Fixed signatures -> cpp_callback. The supported variadic form -> cpp_callback_va.
++// Any other variadic form -> 0 (compile path falls back to pfn_original, matching JIT).
++// fn() is a runtime cast (reinterpret_cast is not a constant expression).
++template<typename S, size_t Off, typename Fn>
++struct wrapper_of { static size_t fn() { return 0; } };
++template<typename S, size_t Off, typename Ret, typename... Args>
++struct wrapper_of<S, Off, Ret(*)(Args...)> {
++	static size_t fn() { return reinterpret_cast<size_t>(&cpp_callback<Ret(*)(Args...), &jd_slot<S, Off>::jd>::call); }
++};
++template<typename S, size_t Off, typename A>
++struct wrapper_of<S, Off, void(*)(A, const char*, ...)> {
++	static size_t fn() { return reinterpret_cast<size_t>(&cpp_callback_va<A, &jd_slot<S, Off>::jd>::call); }
++};
++
++}	// namespace cb_cpp
++
++// Descriptor-table entry augmentation (used by CDATA_ENTRY under METAMOD_CPP_CALLBACKS).
++#define CPP_CDATA_FIELDS(s, x) , cb_cpp::wrapper_of<s, offsetof(s, x), decltype(s::x)>::fn(), &cb_cpp::jd_slot<s, offsetof(s, x)>::jd
+\ No newline at end of file
+diff --git a/metamod/src/callback_jit.h b/metamod/src/callback_jit.h
+index 2bc9b10..a30e17b 100644
+--- a/metamod/src/callback_jit.h
++++ b/metamod/src/callback_jit.h
+@@ -4,7 +4,11 @@
+ 
+ constexpr size_t MAX_CALLBACK_ARGS = 16;
+ 
++#ifdef METAMOD_CPP_CALLBACKS
++#define CDATA_ENTRY(s, x, p, h)	{#x, offsetof(s, x), (uint8)getArgsCount(decltype(s::x)()), getRetType(decltype(s::x)()), is_varargs(decltype(s::x)()), getArgTypes(decltype(s::x)()), p, h CPP_CDATA_FIELDS(s, x)}
++#else
+ #define CDATA_ENTRY(s, x, p, h)	{#x, offsetof(s, x), (uint8)getArgsCount(decltype(s::x)()), getRetType(decltype(s::x)()), is_varargs(decltype(s::x)()), getArgTypes(decltype(s::x)()), p, h}
++#endif
+ 
+ enum rettype_t : uint8_t
+ {
+@@ -58,6 +62,10 @@ struct compile_data_t
+ 	arg_types_array_t	arg_types;
+ 	uint8			mm_hook_time;
+ 	size_t			mm_hook;
++#ifdef METAMOD_CPP_CALLBACKS
++	size_t			wrapper;	// pre-generated C++ wrapper fn ptr (0 = use original)
++	jitdata_t*		jd;		// persistent per-entry dispatch context
++#endif
+ };
+ 
+ template<typename ret_t, typename ...t_args>
+diff --git a/metamod/src/dllapi.cpp b/metamod/src/dllapi.cpp
+index 126a4b9..684adbe 100644
+--- a/metamod/src/dllapi.cpp
++++ b/metamod/src/dllapi.cpp
+@@ -1,5 +1,9 @@
+ #include "precompiled.h"
+ 
++#ifdef METAMOD_CPP_CALLBACKS
++#include "callback_cpp.h"
++#endif
++
+ #define CDATA_DLL_H(x, p, h)    CDATA_ENTRY(DLL_FUNCTIONS, x, p, size_t(h))
+ #define CDATA_DLL(x)            CDATA_ENTRY(DLL_FUNCTIONS, x, P_PRE, 0u)
+ #define CDATA_NEWDLL_H(x, p, h) CDATA_ENTRY(NEW_DLL_FUNCTIONS, x, p, size_t(h))
+@@ -270,7 +274,13 @@ void compile_dllfunc_callbacks()
+ 		jitdata.name = cd.name;
+ #endif
+ 
++#ifdef METAMOD_CPP_CALLBACKS
++		*cd.jd = jitdata;
++		size_t fn = cd.wrapper ? cd.wrapper : jitdata.pfn_original;
++		*(size_t *)(size_t(&sFunctionTable_jit) + cd.offset) = fn;
++#else
+ 		*(size_t *)(size_t(&sFunctionTable_jit) + cd.offset) = g_jit.compile_callback(&jitdata);
++#endif
+ 	}
+ }
+ 
+@@ -296,7 +306,13 @@ void compile_newdllfunc_callbacks()
+ 		jitdata.name = cd.name;
+ #endif
+ 
++#ifdef METAMOD_CPP_CALLBACKS
++		*cd.jd = jitdata;
++		size_t fn = cd.wrapper ? cd.wrapper : jitdata.pfn_original;
++		*(size_t *)(size_t(&sNewFunctionTable_jit) + cd.offset) = fn;
++#else
+ 		*(size_t *)(size_t(&sNewFunctionTable_jit) + cd.offset) = g_jit.compile_callback(&jitdata);
++#endif
+ 	}
+ }
+ 
+diff --git a/metamod/src/engine_api.cpp b/metamod/src/engine_api.cpp
+index d164927..fcf150c 100644
+--- a/metamod/src/engine_api.cpp
++++ b/metamod/src/engine_api.cpp
+@@ -214,7 +214,13 @@ void compile_engfuncs_callbacks()
+ 		jitdata.name = cd.name;
+ #endif
+ 
++#ifdef METAMOD_CPP_CALLBACKS
++		*cd.jd = jitdata;
++		size_t fn = cd.wrapper ? cd.wrapper : jitdata.pfn_original;
++		*(size_t *)(size_t(&g_meta_engfuncs_jit) + cd.offset) = fn;
++#else
+ 		*(size_t *)(size_t(&g_meta_engfuncs_jit) + cd.offset) = g_jit.compile_callback(&jitdata);
++#endif
+ 	}
+ }
+ 
+-- 
+2.56.1
+
+
+From 9c40ccdf7e904d98736fca4a286f9680361a3a82 Mon Sep 17 00:00:00 2001
+From: cs16-arm <cs16-arm@local>
+Date: Fri, 20 Nov 2026 23:49:28 +0200
+Subject: [PATCH 2/2] arm: actually wire METAMOD_CPP_CALLBACKS and drop JIT
+ tramps under it
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+Three separate bugs kept the armv7 build on the x86 JIT path:
+
+1. The CMake option was never turned into a compile definition —
+   every armv7 build compiled callback_jit_x86.cpp and crashed on
+   first engine-table call (executing x86 bytes on ARM). Wire the
+   definition via target_compile_definitions + declare the option.
+2. engine_api.cpp never included callback_cpp.h, so the C++ CDATA
+   variant referenced an undefined CPP_CDATA_FIELDS.
+3. compile_engine_tramps / compile_gamedll_tramps / meta_rebuild
+   _callbacks still generated x86 JIT trampolines into the tables
+   handed to the engine and gamedll, and used the JIT-only live-frame
+   retaddr fixup on plugin reload. Under the C++ mode the wrapper
+   pointers go straight into g_meta_engfuncs / sFunctionTable /
+   sNewFunctionTable (reading originals from the source tables, since
+   the tramps used to run before the _jit fills), and the rebuild path
+   just refreshes the jitdata snapshots — wrapper addresses are stable
+   and the dispatchers read the live plugin list.
+---
+ metamod/CMakeLists.txt     |  2 ++
+ metamod/src/dllapi.cpp     | 18 ++++++++++++++++++
+ metamod/src/engine_api.cpp | 14 ++++++++++++++
+ metamod/src/metamod.cpp    |  9 +++++++++
+ 4 files changed, 43 insertions(+)
+
+diff --git a/metamod/CMakeLists.txt b/metamod/CMakeLists.txt
+index fbee9d1..d03b143 100644
+--- a/metamod/CMakeLists.txt
++++ b/metamod/CMakeLists.txt
+@@ -32,6 +32,7 @@ option(DEBUG "Build with debug information." OFF)
+ option(USE_STATIC_LIBSTDC "Enables static linking libstdc++." OFF)
+ option(BUILD_64BIT "Build 64-bit x86_64 version instead of 32-bit x86." OFF)
+ option(BUILD_AARCH64 "Build for AArch64 (ARM64) target." OFF)
++option(METAMOD_CPP_CALLBACKS "Statically-compiled C++ callback wrappers instead of the AsmJit JIT (required for armv7, which has no JIT backend)." OFF)
+ 
+ # Auto-detect AArch64 host when neither toggle is specified explicitly.
+ if (NOT BUILD_AARCH64 AND NOT BUILD_64BIT
+@@ -197,6 +198,7 @@ target_compile_definitions(metamod PRIVATE
+ 	NDEBUG
+ 	METAMOD_CORE
+ 	_GLIBCXX_USE_CXX11_ABI=0
++	$<$<BOOL:${METAMOD_CPP_CALLBACKS}>:METAMOD_CPP_CALLBACKS>
+ 	_stricmp=strcasecmp
+ 	_strnicmp=strncasecmp
+ 	_strdup=strdup
+diff --git a/metamod/src/dllapi.cpp b/metamod/src/dllapi.cpp
+index 684adbe..a15a99f 100644
+--- a/metamod/src/dllapi.cpp
++++ b/metamod/src/dllapi.cpp
+@@ -318,6 +318,23 @@ void compile_newdllfunc_callbacks()
+ 
+ void compile_gamedll_tramps()
+ {
++#ifdef METAMOD_CPP_CALLBACKS
++	// No JIT on this target: the engine gets the C++ wrapper pointers
++	// directly. Read the originals from the gamedll's own tables — the
++	// _jit tables are filled after this runs.
++	for (auto& cd : g_dllfunc_cdata) {
++		size_t fn = cd.wrapper ? cd.wrapper : *(size_t *)(size_t(g_GameDLL.funcs.dllapi_table) + cd.offset);
++		*(size_t *)(size_t(&sFunctionTable) + cd.offset) = fn;
++	}
++
++	// use direct hook to prevent crash after callbacks rebuilding
++	sFunctionTable.pfnServerDeactivate = mm_ServerDeactivate;
++
++	for (auto& cd : g_newdllfunc_cdata) {
++		size_t fn = cd.wrapper ? cd.wrapper : (g_GameDLL.funcs.newapi_table ? *(size_t *)(size_t(g_GameDLL.funcs.newapi_table) + cd.offset) : 0);
++		*(size_t *)(size_t(&sNewFunctionTable) + cd.offset) = fn;
++	}
++#else
+ 	// we compile simple static functions that will call dynamic callbacks
+ 	for (auto& cd : g_dllfunc_cdata) {
+ 		*(size_t *)(size_t(&sFunctionTable) + cd.offset) = g_jit.compile_tramp(size_t(&sFunctionTable_jit) + cd.offset);
+@@ -329,6 +346,7 @@ void compile_gamedll_tramps()
+ 	for (auto& cd : g_newdllfunc_cdata) {
+ 		*(size_t *)(size_t(&sNewFunctionTable) + cd.offset) = g_jit.compile_tramp(size_t(&sNewFunctionTable_jit) + cd.offset);
+ 	}
++#endif
+ }
+ 
+ void compile_gamedll_callbacks()
+diff --git a/metamod/src/engine_api.cpp b/metamod/src/engine_api.cpp
+index fcf150c..e99be70 100644
+--- a/metamod/src/engine_api.cpp
++++ b/metamod/src/engine_api.cpp
+@@ -1,5 +1,9 @@
+ #include "precompiled.h"
+ 
++#ifdef METAMOD_CPP_CALLBACKS
++#include "callback_cpp.h"
++#endif
++
+ #define CDATA_ENG_H(x, p, h)		CDATA_ENTRY(enginefuncs_t, x, p, size_t(h))
+ #define CDATA_ENG(x)				CDATA_ENTRY(enginefuncs_t, x, P_PRE, 0u)
+ 
+@@ -226,10 +230,20 @@ void compile_engfuncs_callbacks()
+ 
+ void compile_engine_tramps()
+ {
++#ifdef METAMOD_CPP_CALLBACKS
++	// No JIT on this target: hand the gamedll the C++ wrapper pointers
++	// directly (the wrapper reads its jitdata live, so the tramp layer's
++	// rebuildable-indirection trick is unnecessary).
++	for (auto& cd : g_engfuncs_cdata) {
++		size_t fn = cd.wrapper ? cd.wrapper : *(size_t *)(size_t(&g_engfuncs) + cd.offset);
++		*(size_t *)(size_t(&g_meta_engfuncs) + cd.offset) = fn;
++	}
++#else
+ 	// we compile simple static functions that will call dynamic callbacks
+ 	for (auto& cd : g_engfuncs_cdata) {
+ 		*(size_t *)(size_t(&g_meta_engfuncs) + cd.offset) = g_jit.compile_tramp(size_t(&g_meta_engfuncs_jit) + cd.offset/*, cd.mm_hook, cd.mm_hook_time*/);
+ 	}
++#endif
+ }
+ 
+ void compile_engine_callbacks()
+diff --git a/metamod/src/metamod.cpp b/metamod/src/metamod.cpp
+index edb96cc..e1a9bb9 100644
+--- a/metamod/src/metamod.cpp
++++ b/metamod/src/metamod.cpp
+@@ -493,6 +493,15 @@ void meta_rebuild_callbacks()
+ {
+ 	if (!g_metamod_active) return;
+ 
++#ifdef METAMOD_CPP_CALLBACKS
++	// Wrapper addresses are stable and the dispatchers read the live
++	// plugin list, so there is no code to regenerate and no live-frame
++	// return addresses to re-point. Just refresh the jitdata snapshots.
++	compile_engine_callbacks();
++	compile_gamedll_callbacks();
++	return;
++#endif
++
+ 	std::vector<fixdata_t> fixdata;
+ 	if (g_metaGlobals.esp_save) {
+ 		META_LOG("dll: Begin scan to collect callback fix data...");
+-- 
+2.56.1
+
