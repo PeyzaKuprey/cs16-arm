@@ -1,7 +1,7 @@
 From e29c244b187713e2051d5db898d2121115e838c8 Mon Sep 17 00:00:00 2001
 From: cs16-arm <cs16-arm@local>
 Date: Fri, 20 Nov 2026 23:27:04 +0200
-Subject: [PATCH 1/3] arm: add METAMOD_CPP_CALLBACKS mode; armv7 target
+Subject: [PATCH 1/4] arm: add METAMOD_CPP_CALLBACKS mode; armv7 target
 
 - armv7: no AsmJit x86 JIT available; instead of emitting machine
   code per callback, every hooked engine/gamedll function gets a
@@ -315,7 +315,7 @@ index d164927..fcf150c 100644
 From 9c40ccdf7e904d98736fca4a286f9680361a3a82 Mon Sep 17 00:00:00 2001
 From: cs16-arm <cs16-arm@local>
 Date: Fri, 20 Nov 2026 23:49:28 +0200
-Subject: [PATCH 2/3] arm: actually wire METAMOD_CPP_CALLBACKS and drop JIT
+Subject: [PATCH 2/4] arm: actually wire METAMOD_CPP_CALLBACKS and drop JIT
  tramps under it
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -463,7 +463,7 @@ index edb96cc..e1a9bb9 100644
 From 3a2ba7835fe2be61c79ce1ddd5bac81fc900bd8f Mon Sep 17 00:00:00 2001
 From: cs16-arm <cs16-arm@local>
 Date: Sat, 21 Nov 2026 01:29:21 +0200
-Subject: [PATCH 3/3] bionic: pthread/dl are inside libc on Android, skip stub
+Subject: [PATCH 3/4] bionic: pthread/dl are inside libc on Android, skip stub
  libs
 
 ---
@@ -485,6 +485,63 @@ index d03b143..e5d275b 100644
  	asmjit::asmjit
  	$<$<CONFIG:COMPAT_GLIBC>:libc-2.11.1.so>
  )
+-- 
+2.56.1
+
+
+From 3b40cceafa34314c0c6974b5b363c9a56d015a6f Mon Sep 17 00:00:00 2001
+From: cs16-arm <cs16-arm@local>
+Date: Sat, 21 Nov 2026 01:45:28 +0200
+Subject: [PATCH 4/4] bionic: RTLD_DEEPBIND define fallback; version-script
+ only off-Android
+
+---
+ metamod/CMakeLists.txt     | 15 +++++++++++----
+ metamod/src/sys_module.cpp |  5 +++++
+ 2 files changed, 16 insertions(+), 4 deletions(-)
+
+diff --git a/metamod/CMakeLists.txt b/metamod/CMakeLists.txt
+index e5d275b..587d82c 100644
+--- a/metamod/CMakeLists.txt
++++ b/metamod/CMakeLists.txt
+@@ -154,10 +154,17 @@ if (METAMOD_ARCH_X86 AND CMAKE_CXX_COMPILER_VERSION VERSION_GREATER_EQUAL 8.0)
+ 	set(COMPILE_FLAGS "${COMPILE_FLAGS} -fcf-protection=none")
+ endif()
+ 
+-if (NOT DEBUG)
+-	set(LINK_FLAGS "${LINK_FLAGS} \
+-		-Wl,-gc-sections -Wl,--version-script=\"${PROJECT_SOURCE_DIR}/../version_script.lds\"")
+-endif()
++	if (NOT DEBUG)
++		if (ANDROID)
++			# lld rejects version-script symbols that don't exist (_init/_fini
++			# don't exist in bionic shared objects); exports come from EXT_FUNC
++			# default visibility instead
++			set(LINK_FLAGS "${LINK_FLAGS} -Wl,-gc-sections")
++		else()
++			set(LINK_FLAGS "${LINK_FLAGS} \
++				-Wl,-gc-sections -Wl,--version-script=\"${PROJECT_SOURCE_DIR}/../version_script.lds\")
++		endif()
++	endif()
+ 
+ if (CMAKE_BUILD_TYPE MATCHES COMPAT_GLIBC)
+ 	set(LINK_FLAGS	"${LINK_FLAGS} -Wl,--wrap=stat64")
+diff --git a/metamod/src/sys_module.cpp b/metamod/src/sys_module.cpp
+index d487306..26b5001 100644
+--- a/metamod/src/sys_module.cpp
++++ b/metamod/src/sys_module.cpp
+@@ -157,6 +157,11 @@ module_handle_t CSysModule::find(void *addr)
+ module_handle_t CSysModule::load(const char *filepath)
+ {
+ 	if (!m_handle) {
++#ifndef RTLD_DEEPBIND
++// bionic doesn't provide RTLD_DEEPBIND (and its linker doesn't support the
++// semantics); plain RTLD_LOCAL is functionally equivalent here
++#define RTLD_DEEPBIND 0
++#endif
+ 		m_handle = dlopen(filepath, RTLD_NOW | RTLD_LOCAL | RTLD_DEEPBIND);
+ 		if (m_handle) m_free = true;
+ 
 -- 
 2.56.1
 
