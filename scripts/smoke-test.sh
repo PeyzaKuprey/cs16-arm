@@ -32,25 +32,31 @@ run() {
   "$qemu" -L "$sysroot" "$harness" "$@" || { echo "$label: FAILED"; fail=1; }
 }
 
+run_ldpath() {
+  local qemu=$1 sysroot=$2 harness=$3 label=$4 ldpath=$5; shift 5
+  echo "== $label (LD_LIBRARY_PATH)"
+  "$qemu" -L "$sysroot" -E "LD_LIBRARY_PATH=$ldpath" "$harness" "$@" || { echo "$label: FAILED"; fail=1; }
+}
+
 for arch in aarch64 armv7; do
   if [ $arch = aarch64 ]; then Q=$QEMU_A64; SYS=$SYS64; H=$SMOKE/dltest-aarch64; REH=$ROOT/build/rehlds-aarch64/rehlds; LIBDIR=linuxarm64
   else                        Q=$QEMU_V7; SYS=$SYS32; H=$SMOKE/dltest-armv7;  REH=$ROOT/build/rehlds-armv7/rehlds;  LIBDIR=linuxarm32
   fi
   # stage libsteam_api next to the engine ($ORIGIN rpath)
-  cp "$REHDS/rehlds/lib/$LIBDIR/libsteam_api.so" "$REH/"
+  cp "$REHLDS/rehlds/lib/$LIBDIR/libsteam_api.so" "$REH/"
   run $Q $SYS $H $arch \
     "$REH/engine_i486.so" \
     "$REH/filesystem/FileSystem_Stdio/filesystem_stdio.so" \
     "$REH/HLTV/Core/core.so" \
     "$REH/HLTV/DemoPlayer/demoplayer.so" \
     "$REH/HLTV/Director/director.so" \
-    "$REH/HLTV/Proxy/proxy.so" \
     "$ROOT/build/metamod-$arch/metamod/metamod_$arch.so" \
     "$ROOT/build/regamedll-$arch/regamedll/cs.so" \
     "$ROOT/build/reunion-$arch/reunion_mm_$arch.so" \
     "$ROOT/build/rehlmaster-$arch/rehlmaster.so"
-  # engine + proxy with libsteam_api resolvable
-  run $Q $SYS $H "$arch engine" "$REH/engine_i486.so"
+  # proxy.so carries a plain NEEDED on libsteam_api: resolvable via the
+  # staged copy next to the engine
+  run_ldpath $Q $SYS $H "$arch proxy" "$REH" "$REH/HLTV/Proxy/proxy.so"
 done
 
 exit $fail

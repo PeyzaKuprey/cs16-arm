@@ -48,7 +48,7 @@ cmake -S src/ReUnion/reunion -B build/reunion-armv7 \
 echo "=== rehlmaster armv7 ==="
 TC_ROOT=$ROOT/toolchains/armv7
 mkdir -p build/rehlmaster-armv7
-${TC_ROOT}/bin/arm-buildroot-linux-gnueabihf-gcc -std=c++11 -w -march=armv7-a -mtune=cortex-a53 -O3 -s -shared -static-libgcc -static-libstdc++ \
+${TC_ROOT}/bin/arm-buildroot-linux-gnueabihf-g++ -std=c++11 -w -march=armv7-a -mtune=cortex-a53 -O3 -s -shared -static-libgcc -static-libstdc++ \
   -fno-stack-protector -fno-strict-aliasing -fno-strict-overflow -fvisibility=hidden -fPIC \
   -Isrc/rehlmaster/src \
   -Isrc/rehlmaster/dep/rehlsdk/common -Isrc/rehlmaster/dep/rehlsdk/dlls -Isrc/rehlmaster/dep/rehlsdk/engine -Isrc/rehlmaster/dep/rehlsdk/public \
