@@ -1,7 +1,7 @@
 From d36f3a43abf9c5bc0befcdf7627e5c6640822eda Mon Sep 17 00:00:00 2001
 From: cs16-arm <cs16-arm@local>
 Date: Fri, 20 Nov 2026 23:27:28 +0200
-Subject: [PATCH] arm: build for armv7-a / aarch64
+Subject: [PATCH 1/2] arm: build for armv7-a / aarch64
 
 - CMakeLists: no -m32/-msse3 on ARM, PIC for the shared object,
   arch-suffixed output (reunion_mm_armv7.so / reunion_mm_aarch64.so),

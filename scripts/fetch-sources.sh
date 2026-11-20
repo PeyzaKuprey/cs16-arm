@@ -42,6 +42,7 @@ for entry in "${PROJECTS[@]}"; do
     echo "== $name: cloning $url"
     git clone -q "$url" "$dest" || { echo "$name: clone failed"; fail=1; continue; }
     git -C "$dest" checkout -q $sha || { echo "$name: pinned SHA $sha not found upstream"; fail=1; continue; }
+    git -C "$dest" submodule update -q --init --recursive 2>/dev/null || echo "$name: (no submodules or fetch failed)"
   fi
   # am creates commits; make sure an identity exists (repo-local, no global side effects)
   git -C "$dest" config user.name "cs16-arm" 2>/dev/null || true

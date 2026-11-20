@@ -11,3 +11,73 @@
 === ReHLDS aarch64 ===
 + cmake -S src/buildchain/ReHLDS -B build/rehlds-aarch64 -DCMAKE_TOOLCHAIN_FILE=/home/noname/my-project/cs16-arm-release/build/toolchain-aarch64.cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_POLICY_VERSION_MINIMUM=3.5 -DUSE_STATIC_LIBSTDC=ON
 + cmake --build build/rehlds-aarch64 -j4
++ echo '=== Metamod-R aarch64 ==='
+=== Metamod-R aarch64 ===
++ cmake -S src/buildchain/Metamod-R -B build/metamod-aarch64 -DCMAKE_TOOLCHAIN_FILE=/home/noname/my-project/cs16-arm-release/build/toolchain-aarch64.cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_POLICY_VERSION_MINIMUM=3.5 -DUSE_STATIC_LIBSTDC=ON
++ echo 'METAMOD FAILED'
+METAMOD FAILED
++ fail=1
++ echo '=== ReGameDLL_CS aarch64 ==='
+=== ReGameDLL_CS aarch64 ===
++ cmake -S src/ReGameDLL_CS -B build/regamedll-aarch64 -DCMAKE_TOOLCHAIN_FILE=/home/noname/my-project/cs16-arm-release/build/toolchain-aarch64.cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_POLICY_VERSION_MINIMUM=3.5 -DX64BITS=ON -DUSE_STATIC_LIBSTDC=ON
++ cmake --build build/regamedll-aarch64 -j4
++ echo '=== ReUnion aarch64 ==='
+=== ReUnion aarch64 ===
++ cmake -S src/ReUnion/reunion -B build/reunion-aarch64 -DCMAKE_TOOLCHAIN_FILE=/home/noname/my-project/cs16-arm-release/build/toolchain-aarch64.cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_POLICY_VERSION_MINIMUM=3.5 -DUSE_STATIC_LIBSTDC=ON
++ cmake --build build/reunion-aarch64 -j4
++ echo 'REUNION AARCH64 FAILED'
+REUNION AARCH64 FAILED
++ fail=1
++ echo '=== rehlmaster aarch64 ==='
+=== rehlmaster aarch64 ===
++ TC_ROOT=/home/noname/my-project/cs16-arm-release/toolchains/aarch64
++ mkdir -p build/rehlmaster-aarch64
++ /home/noname/my-project/cs16-arm-release/toolchains/aarch64/bin/aarch64-buildroot-linux-gnu-g++ -std=c++11 -w -O3 -s -shared -static-libgcc -static-libstdc++ -fno-stack-protector -fno-strict-aliasing -fno-strict-overflow -fvisibility=hidden -fPIC -Isrc/rehlmaster/src -Isrc/rehlmaster/dep/rehlsdk/common -Isrc/rehlmaster/dep/rehlsdk/dlls -Isrc/rehlmaster/dep/rehlsdk/engine -Isrc/rehlmaster/dep/rehlsdk/public -Isrc/rehlmaster/dep/metamod src/rehlmaster/src/dllapi.cpp src/rehlmaster/src/engine_api.cpp src/rehlmaster/src/ex_rehlds_api.cpp src/rehlmaster/src/h_export.cpp src/rehlmaster/src/meta_api.cpp src/rehlmaster/src/public_amalgamation.cpp src/rehlmaster/src/rehlmaster.cpp src/rehlmaster/src/server_info.cpp src/rehlmaster/src/sizebuf.cpp src/rehlmaster/src/utils.cpp -o build/rehlmaster-aarch64/rehlmaster.so
++ echo '=== hlmaster aarch64 (standalone master server) ==='
+=== hlmaster aarch64 (standalone master server) ===
++ mkdir -p build/hlmaster-aarch64
++ /home/noname/my-project/cs16-arm-release/toolchains/aarch64/bin/aarch64-buildroot-linux-gnu-gcc -O3 -w -s -fvisibility=hidden -fno-strict-aliasing -fno-strict-overflow -fomit-frame-pointer -fno-stack-protector src/hlmaster/hlmaster.c -o build/hlmaster-aarch64/hlmaster
+In file included from src/hlmaster/hlmaster.c:3:
+src/hlmaster/hlmaster.c: In function ‘main’:
+src/hlmaster/hlmaster.h:56:5: error: impossible constraint in ‘asm’
+   56 |     __asm__ __volatile__("rep; stosb"
+      |     ^~~~~~~
+src/hlmaster/hlmaster.h:56:5: error: impossible constraint in ‘asm’
+   56 |     __asm__ __volatile__("rep; stosb"
+      |     ^~~~~~~
+src/hlmaster/hlmaster.h:56:5: error: impossible constraint in ‘asm’
+   56 |     __asm__ __volatile__("rep; stosb"
+      |     ^~~~~~~
+src/hlmaster/hlmaster.h:56:5: error: impossible constraint in ‘asm’
+   56 |     __asm__ __volatile__("rep; stosb"
+      |     ^~~~~~~
++ echo 'HLMASTER AARCH64 FAILED'
+HLMASTER AARCH64 FAILED
++ fail=1
++ echo '=== DONE fail=1 ==='
+=== DONE fail=1 ===
++ exit 1
++++ dirname build/build-armv7.sh
+++ cd build/..
+++ pwd
++ ROOT=/home/noname/my-project/cs16-arm-release
++ TC7=/home/noname/my-project/cs16-arm-release/build/toolchain-armv7.cmake
++ TC64=/home/noname/my-project/cs16-arm-release/build/toolchain-aarch64.cmake
++ LOGS=/home/noname/my-project/cs16-arm-release/build/logs
++ mkdir -p /home/noname/my-project/cs16-arm-release/build/logs
++ cd /home/noname/my-project/cs16-arm-release
++ fail=0
++ echo '=== ReHLDS armv7 ==='
+=== ReHLDS armv7 ===
++ cmake -S src/buildchain/ReHLDS -B build/rehlds-armv7 -DCMAKE_TOOLCHAIN_FILE=/home/noname/my-project/cs16-arm-release/build/toolchain-armv7.cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_POLICY_VERSION_MINIMUM=3.5 -DUSE_STATIC_LIBSTDC=ON
++ cmake --build build/rehlds-armv7 -j4
++ echo '=== Metamod-R armv7 (C++ callbacks, no JIT) ==='
+=== Metamod-R armv7 (C++ callbacks, no JIT) ===
++ cmake -S src/buildchain/Metamod-R -B build/metamod-armv7 -DCMAKE_TOOLCHAIN_FILE=/home/noname/my-project/cs16-arm-release/build/toolchain-armv7.cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_POLICY_VERSION_MINIMUM=3.5 -DUSE_STATIC_LIBSTDC=ON -DMETAMOD_CPP_CALLBACKS=ON
++ echo 'METAMOD ARMv7 FAILED'
+METAMOD ARMv7 FAILED
++ fail=1
++ echo '=== ReGameDLL_CS armv7 ==='
+=== ReGameDLL_CS armv7 ===
++ cmake -S src/ReGameDLL_CS -B build/regamedll-armv7 -DCMAKE_TOOLCHAIN_FILE=/home/noname/my-project/cs16-arm-release/build/toolchain-armv7.cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_POLICY_VERSION_MINIMUM=3.5 -DUSE_STATIC_LIBSTDC=ON
++ cmake --build build/regamedll-armv7 -j4
