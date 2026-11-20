@@ -25,9 +25,6 @@ METAMOD FAILED
 === ReUnion aarch64 ===
 + cmake -S src/ReUnion/reunion -B build/reunion-aarch64 -DCMAKE_TOOLCHAIN_FILE=/home/noname/my-project/cs16-arm-release/build/toolchain-aarch64.cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_POLICY_VERSION_MINIMUM=3.5 -DUSE_STATIC_LIBSTDC=ON
 + cmake --build build/reunion-aarch64 -j4
-+ echo 'REUNION AARCH64 FAILED'
-REUNION AARCH64 FAILED
-+ fail=1
 + echo '=== rehlmaster aarch64 ==='
 === rehlmaster aarch64 ===
 + TC_ROOT=/home/noname/my-project/cs16-arm-release/toolchains/aarch64
@@ -37,23 +34,6 @@ REUNION AARCH64 FAILED
 === hlmaster aarch64 (standalone master server) ===
 + mkdir -p build/hlmaster-aarch64
 + /home/noname/my-project/cs16-arm-release/toolchains/aarch64/bin/aarch64-buildroot-linux-gnu-gcc -O3 -w -s -fvisibility=hidden -fno-strict-aliasing -fno-strict-overflow -fomit-frame-pointer -fno-stack-protector src/hlmaster/hlmaster.c -o build/hlmaster-aarch64/hlmaster
-In file included from src/hlmaster/hlmaster.c:3:
-src/hlmaster/hlmaster.c: In function ‘main’:
-src/hlmaster/hlmaster.h:56:5: error: impossible constraint in ‘asm’
-   56 |     __asm__ __volatile__("rep; stosb"
-      |     ^~~~~~~
-src/hlmaster/hlmaster.h:56:5: error: impossible constraint in ‘asm’
-   56 |     __asm__ __volatile__("rep; stosb"
-      |     ^~~~~~~
-src/hlmaster/hlmaster.h:56:5: error: impossible constraint in ‘asm’
-   56 |     __asm__ __volatile__("rep; stosb"
-      |     ^~~~~~~
-src/hlmaster/hlmaster.h:56:5: error: impossible constraint in ‘asm’
-   56 |     __asm__ __volatile__("rep; stosb"
-      |     ^~~~~~~
-+ echo 'HLMASTER AARCH64 FAILED'
-HLMASTER AARCH64 FAILED
-+ fail=1
 + echo '=== DONE fail=1 ==='
 === DONE fail=1 ===
 + exit 1
