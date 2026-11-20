@@ -12,7 +12,8 @@ assemble() {
   local arch=$1
   local B=$ROOT/build/rehlds-$arch/rehlds
   local D=$ROOT/dist/$arch
-  local LIB=$B/lib/$( [ $arch = aarch64 ] && echo linuxarm64 || echo linuxarm32 )
+  # the libsteam_api shim is produced into the source tree (cmake output dir)
+  local LIB=$SRC/buildchain/ReHLDS/rehlds/lib/$( [ $arch = aarch64 ] && echo linuxarm64 || echo linuxarm32 )
 
   echo "== assembling dist/$arch"
   rm -rf "$D"
