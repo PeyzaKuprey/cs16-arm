@@ -43,6 +43,9 @@ for entry in "${PROJECTS[@]}"; do
     git clone -q "$url" "$dest" || { echo "$name: clone failed"; fail=1; continue; }
     git -C "$dest" checkout -q $sha || { echo "$name: pinned SHA $sha not found upstream"; fail=1; continue; }
   fi
+  # am creates commits; make sure an identity exists (repo-local, no global side effects)
+  git -C "$dest" config user.name "cs16-arm" 2>/dev/null || true
+  git -C "$dest" config user.email "cs16-arm@local" 2>/dev/null || true
   if git -C "$dest" rev-parse -q --verify refs/heads/arm > /dev/null; then
     echo "== $name: arm branch exists, resetting to patch state"
     git -C "$dest" checkout -q arm
