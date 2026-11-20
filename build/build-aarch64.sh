@@ -49,5 +49,13 @@ ${TC_ROOT}/bin/aarch64-buildroot-linux-gnu-g++ -std=c++11 -w -O3 -s -shared -sta
   -o build/rehlmaster-aarch64/rehlmaster.so \
 || { echo "REHLMASTER AARCH64 FAILED"; fail=1; }
 
+
+echo "=== hlmaster aarch64 (standalone master server) ==="
+mkdir -p build/hlmaster-aarch64
+${TC_ROOT}/bin/aarch64-buildroot-linux-gnu-gcc -O3 -w -s -fvisibility=hidden -fno-strict-aliasing -fno-strict-overflow \
+  -fomit-frame-pointer -fno-stack-protector \
+  src/hlmaster/hlmaster.c -o build/hlmaster-aarch64/hlmaster \
+  || { echo "HLMASTER AARCH64 FAILED"; fail=1; }
+
 echo "=== DONE fail=$fail ==="
 exit $fail

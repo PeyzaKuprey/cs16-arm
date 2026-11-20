@@ -1,0 +1,13 @@
++++ dirname build/build-aarch64.sh
+++ cd build/..
+++ pwd
++ ROOT=/home/noname/my-project/cs16-arm-release
++ TC=/home/noname/my-project/cs16-arm-release/build/toolchain-aarch64.cmake
++ LOGS=/home/noname/my-project/cs16-arm-release/build/logs
++ mkdir -p /home/noname/my-project/cs16-arm-release/build/logs
++ cd /home/noname/my-project/cs16-arm-release
++ fail=0
++ echo '=== ReHLDS aarch64 ==='
+=== ReHLDS aarch64 ===
++ cmake -S src/buildchain/ReHLDS -B build/rehlds-aarch64 -DCMAKE_TOOLCHAIN_FILE=/home/noname/my-project/cs16-arm-release/build/toolchain-aarch64.cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_POLICY_VERSION_MINIMUM=3.5 -DUSE_STATIC_LIBSTDC=ON
++ cmake --build build/rehlds-aarch64 -j4

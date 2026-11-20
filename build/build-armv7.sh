@@ -57,5 +57,13 @@ ${TC_ROOT}/bin/arm-buildroot-linux-gnueabihf-gcc -std=c++11 -w -march=armv7-a -m
   -o build/rehlmaster-armv7/rehlmaster.so \
 || { echo "REHLMASTER ARMv7 FAILED"; fail=1; }
 
+
+echo "=== hlmaster armv7 (standalone master server) ==="
+mkdir -p build/hlmaster-armv7
+${TC_ROOT}/bin/arm-buildroot-linux-gnueabihf-gcc -O3 -w -march=armv7-a -mtune=cortex-a53 -mfpu=neon -mfloat-abi=hard -s -fvisibility=hidden \
+  -fno-strict-aliasing -fno-strict-overflow -fomit-frame-pointer -fno-stack-protector \
+  src/hlmaster/hlmaster.c -o build/hlmaster-armv7/hlmaster \
+  || { echo "HLMASTER ARMv7 FAILED"; fail=1; }
+
 echo "=== DONE fail=$fail ==="
 exit $fail

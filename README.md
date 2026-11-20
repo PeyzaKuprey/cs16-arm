@@ -21,6 +21,7 @@ scripts, drop-in assembly and smoke tests.
 | Gamedll | [ReGameDLL_CS](https://github.com/s1lentq/ReGameDLL_CS) | `s1lentq/ReGameDLL_CS` | `1f16a7f` |
 | Auth | [ReUnion](https://github.com/rehlds/ReUnion) | `rehlds/ReUnion` | `df6ccc9` |
 | Master ping | [rehlmaster](https://github.com/anzz1/rehlmaster) | `anzz1/rehlmaster` | `8fe006b` |
+| Master server | [hlmaster](https://github.com/anzz1/hlmaster) | `anzz1/hlmaster` | `9e41a4e` |
 
 Exact SHAs live in `scripts/fetch-sources.sh`; the whole port is a patchset
 per project under `patches/` (applied on an `arm` branch, see below).
@@ -68,6 +69,9 @@ fan the i386-only assumptions out to ARM.  Highlights (full notes in
   output names.
 - **rehlmaster** — x86 intrin guard; `-static-libstdc++` so the plugin has
   no target libstdc++ dependency.
+- **hlmaster** — the standalone master server compiles as-is on both
+  arches (pure C, no arch assumptions); built into
+  `build/hlmaster-<arch>/hlmaster`.  See `docs/AUX-PROJECTS.md`.
 
 ## Verification status
 
