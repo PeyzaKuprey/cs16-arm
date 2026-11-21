@@ -57,12 +57,13 @@ for entry in "${PROJECTS[@]}"; do
   fi
   if ls "$PATCHES/$patchdir/"*.mbox > /dev/null 2>&1; then
     echo "== $name: applying $patchdir"
-    if ! git -C "$dest" am -q "$PATCHES/$patchdir/"*.mbox 2>/dev/null; then
-      git -C "$dest" am -q --abort 2>/dev/null || true
-      # 3-way apply: immune to whitespace-fuzz "patch does not apply" errors
-      # (needs upstream blob objects — present, we clone from upstream)
-      git -C "$dest" am -q -3 "$PATCHES/$patchdir/"*.mbox \
-        || { echo "$name: patch apply FAILED"; fail=1; continue; }
+    # git apply --index (atomic) instead of git am: mailinfo mangles some of
+    # these mboxes ("patch does not apply" on hunks that git apply takes
+    # fine); apply is all-or-nothing so success = fully patched tree
+    if git -C "$dest" apply --index --whitespace=nowarn "$PATCHES/$patchdir/"*.mbox 2>/dev/null; then
+      git -C "$dest" commit -q -m "arm: port build to armv7-a / aarch64 (patchset $patchdir)"
+    else
+      echo "$name: patch apply FAILED"; fail=1; continue
     fi
   else
     echo "== $name: no patches, upstream as-is"
