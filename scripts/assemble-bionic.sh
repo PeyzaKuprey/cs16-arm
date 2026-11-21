@@ -77,6 +77,10 @@ fi
 EOF
   chmod +x "$D/apply-liblist.sh"
 
+  # One-file installer is shipped inside every overlay as well.
+  cp "$ROOT/scripts/cs16-termux-setup.sh" "$D/setup.sh"
+  chmod +x "$D/setup.sh"
+
   # Bionic builds need the Termux/Android README, never the glibc/Bootlin one.
   if [ -f "$ROOT/docs/README-dropin-bionic-template.md" ]; then
     sed "s/<arch>/$arch/g" "$ROOT/docs/README-dropin-bionic-template.md" > "$D/README-dropin.md"
@@ -98,7 +102,60 @@ print("   ->", out, os.path.getsize(out), "bytes")
 EOF
 }
 
+assemble_full() {
+  local F=$ROOT/dist-bionic/hlds-full-bionic
+  rm -rf "$F"
+  mkdir -p "$F/aarch64" "$F/armv7" "$F/patches/rehlds" "$F/docs" "$F/scripts" "$F/build"
+
+  cp -a "$ROOT/dist-bionic/aarch64/." "$F/aarch64/"
+  cp -a "$ROOT/dist-bionic/armv7/." "$F/armv7/"
+
+  cp "$ROOT/scripts/cs16-termux-setup.sh" "$F/setup.sh"
+  cp "$ROOT/scripts/cs16-termux-setup.sh" "$F/termux-setup.sh"
+  chmod +x "$F/setup.sh" "$F/termux-setup.sh"
+  cp "$ROOT/docs/TERMX.md" "$F/docs/"
+  cp "$ROOT/docs/README-dropin-bionic-template.md" "$F/docs/"
+  cp "$ROOT/patches/rehlds/"*.mbox "$F/patches/rehlds/"
+  cp "$ROOT/scripts/fetch-sources.sh" "$ROOT/scripts/assemble-bionic.sh" "$F/scripts/"
+  cp "$ROOT/build/build-bionic.sh" "$F/build/"
+
+  cat > "$F/README-FULL.md" <<'EOF'
+# CS 1.6 Bionic ARM — full build
+
+This archive contains everything:
+
+- `aarch64/` — native Bionic overlay for arm64 Termux.
+- `armv7/` — native Bionic overlay for 32-bit ARM Termux.
+- `setup.sh` — the one-file installer: detects the CPU, downloads the matching
+  overlay from the GitHub release, configures it and starts the server.
+- `patches/rehlds/` — the patchsets applied to the pinned ReHLDS sources
+  (`android-pie.mbox` is the fix for `unexpected e_type: 2`).
+- `scripts/`, `build/` — source fetch, build and packaging scripts.
+- `docs/` — Termux deployment notes.
+
+On a phone, copy only `setup.sh` into Termux and run:
+
+    bash setup.sh
+
+Everything else is pulled from the release automatically. If you already have
+game data in `~/hlds`, the installer keeps it and only refreshes the binaries.
+EOF
+
+  echo "== zipping hlds-full-bionic.zip"
+  python3 - "$F" "$ROOT/dist-bionic/hlds-full-bionic.zip" <<'EOF2'
+import zipfile, os, sys
+src, out = sys.argv[1], sys.argv[2]
+with zipfile.ZipFile(out, "w", zipfile.ZIP_DEFLATED) as z:
+    for root, dirs, files in os.walk(src):
+        for f in files:
+            p = os.path.join(root, f)
+            z.write(p, os.path.relpath(p, src))
+print("   ->", out, os.path.getsize(out), "bytes")
+EOF2
+}
+
 for arch in ${@:-armv7 aarch64}; do
   assemble "$arch"
 done
+assemble_full
 echo "done"
