@@ -64,6 +64,16 @@ else
   printf 'gamedll_linux "%s"\n' "\$val" >> "\$lib"
 fi
 echo "set gamedll_linux \"\$val\" in \$lib"
+
+# ReUnion needs a non-empty SteamIdHashSalt.  Generate a per-install random
+# value instead of shipping a fixed (public) one.  Never overwrite a value
+# the administrator has already set.
+cfg="\$(dirname "\$lib")/reunion.cfg"
+if [ -f "\$cfg" ] && grep -qE '^SteamIdHashSalt[[:space:]]*=\$' "\$cfg"; then
+  salt=\$(od -An -N16 -tx1 /dev/urandom | tr -d '[:space:]')
+  sed -i.bak "s|^SteamIdHashSalt *=.*|SteamIdHashSalt = \$salt|" "\$cfg"
+  echo "generated SteamIdHashSalt in \$cfg"
+fi
 EOF
   chmod +x "$D/apply-liblist.sh"
 

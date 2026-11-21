@@ -69,9 +69,12 @@ Every `.so` and executable links only to `libc.so`, `libdl.so`, `libm.so`
   ```
 
   The stub lives in `tools/smoketest/steamclient_stub.cpp` in the source repo.
-- ReUnion authorizes clients without Steam. Make sure
-  `cstrike/addons/reunion/reunion.cfg` is readable and that
+- ReUnion authorizes clients without Steam. Make sure `cstrike/reunion.cfg`
+  (and `cstrike/addons/reunion/reunion.cfg`) is readable and that
   `reunion_mm_<arch>.so` is listed first in `plugins.ini`.
+- `apply-liblist.sh` fills in a random `SteamIdHashSalt` in `cstrike/reunion.cfg`
+  on first install. Change it there before exposing the server publicly; an
+  already configured value is never overwritten.
 - A2S_INFO replies are normally served by `steamclient.so`. With the stub,
   the server may stay silent to A2S_INFO while `getchallenge` still works.
   This is expected; LAN play is unaffected.
