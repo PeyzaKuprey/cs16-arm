@@ -27,7 +27,8 @@ need() {
 need curl
 need unzip
 
-case "$(uname -m)" in
+UNAME_M=$(uname -m)
+case "$UNAME_M" in
   aarch64|arm64|armv8l)
     ARCH=aarch64
     ;;
@@ -35,8 +36,16 @@ case "$(uname -m)" in
     ARCH=armv7
     ;;
   *)
-    say "unsupported CPU: $(uname -m)"
-    exit 1
+    # Android emulators may report the host CPU while still listing an ARM ABI.
+    ABI=$(getprop ro.product.cpu.abilist 2>/dev/null || true)
+    case "$ABI" in
+      *arm64-v8a*) ARCH=aarch64 ;;
+      *armeabi-v7a*) ARCH=armv7 ;;
+      *)
+        say "unsupported CPU: $UNAME_M (ABI: $ABI)"
+        exit 1
+        ;;
+    esac
     ;;
 esac
 
