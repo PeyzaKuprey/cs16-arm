@@ -39,6 +39,8 @@ assemble() {
   # configs (templates from the source trees)
   cp "$SRC/buildchain/Metamod-R/metamod/extra/config.ini"             "$D/cstrike/addons/metamod/"
   cp "$SRC/ReUnion/reunion/dist/reunion.cfg"                          "$D/cstrike/addons/reunion/"
+  # ReUnion itself looks for "reunion.cfg" in the server root or gamedir.
+  cp "$SRC/ReUnion/reunion/dist/reunion.cfg"                          "$D/cstrike/"
 
   # metamod plugin list: reunion + rehlmaster wired
   printf 'linux addons/reunion/dlls/reunion_mm_%s.so\nlinux addons/metamod/dlls/rehlmaster.so\n' "$arch" \
