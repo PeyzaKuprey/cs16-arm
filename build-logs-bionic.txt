@@ -14,7 +14,6 @@
 + local name=rehlds-bionic-aarch64 src=src/buildchain/ReHLDS bdir=build/rehlds-bionic-aarch64 tc=/home/noname/my-project/cs16-arm-release/build/toolchain-bionic-aarch64.cmake
 + shift 4
 + cmake -S src/buildchain/ReHLDS -B build/rehlds-bionic-aarch64 -DCMAKE_TOOLCHAIN_FILE=/home/noname/my-project/cs16-arm-release/build/toolchain-bionic-aarch64.cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_POLICY_VERSION_MINIMUM=3.5 -DUSE_STATIC_LIBSTDC=OFF
-+ cmake --build build/rehlds-bionic-aarch64 -j4
 + echo 'rehlds-bionic-aarch64 FAILED'
 rehlds-bionic-aarch64 FAILED
 + fail=1
@@ -36,21 +35,20 @@ regamedll-bionic-aarch64 FAILED
 + local name=reunion-bionic-aarch64 src=src/ReUnion/reunion bdir=build/reunion-bionic-aarch64 tc=/home/noname/my-project/cs16-arm-release/build/toolchain-bionic-aarch64.cmake
 + shift 4
 + cmake -S src/ReUnion/reunion -B build/reunion-bionic-aarch64 -DCMAKE_TOOLCHAIN_FILE=/home/noname/my-project/cs16-arm-release/build/toolchain-bionic-aarch64.cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_POLICY_VERSION_MINIMUM=3.5 -DUSE_STATIC_LIBSTDC=OFF
-+ cmake --build build/reunion-bionic-aarch64 -j4
 + echo 'reunion-bionic-aarch64 FAILED'
 reunion-bionic-aarch64 FAILED
 + fail=1
 + mkdir -p build/rehlmaster-bionic-aarch64
 + /home/noname/android/ndk/toolchains/llvm/prebuilt/linux-x86_64/bin/aarch64-linux-android24-clang++ -std=c++11 -w -O3 -s -shared -fno-stack-protector -fno-strict-aliasing -fno-strict-overflow -fvisibility=hidden -Isrc/rehlmaster/src -Isrc/rehlmaster/dep/rehlsdk/common -Isrc/rehlmaster/dep/rehlsdk/dlls -Isrc/rehlmaster/dep/rehlsdk/engine -Isrc/rehlmaster/dep/rehlsdk/public -Isrc/rehlmaster/dep/metamod src/rehlmaster/src/dllapi.cpp src/rehlmaster/src/engine_api.cpp src/rehlmaster/src/ex_rehlds_api.cpp src/rehlmaster/src/h_export.cpp src/rehlmaster/src/meta_api.cpp src/rehlmaster/src/public_amalgamation.cpp src/rehlmaster/src/rehlmaster.cpp src/rehlmaster/src/server_info.cpp src/rehlmaster/src/sizebuf.cpp src/rehlmaster/src/utils.cpp -o build/rehlmaster-bionic-aarch64/rehlmaster.so
 ld.lld: error: relocation R_AARCH64_ADR_PREL_PG_HI21 cannot be used against symbol 'CreateInterface'; recompile with -fPIC
->>> defined in /tmp/public_amalgamation-3a955d.o
+>>> defined in /tmp/public_amalgamation-155f53.o
 >>> referenced by public_amalgamation.cpp
->>>               /tmp/public_amalgamation-3a955d.o:(Sys_GetFactoryThis())
+>>>               /tmp/public_amalgamation-155f53.o:(Sys_GetFactoryThis())
 
 ld.lld: error: relocation R_AARCH64_ADD_ABS_LO12_NC cannot be used against symbol 'CreateInterface'; recompile with -fPIC
->>> defined in /tmp/public_amalgamation-3a955d.o
+>>> defined in /tmp/public_amalgamation-155f53.o
 >>> referenced by public_amalgamation.cpp
->>>               /tmp/public_amalgamation-3a955d.o:(Sys_GetFactoryThis())
+>>>               /tmp/public_amalgamation-155f53.o:(Sys_GetFactoryThis())
 clang-17: error: linker command failed with exit code 1 (use -v to see invocation)
 + echo 'REHLMASTER BIONIC AARCH64 FAILED'
 REHLMASTER BIONIC AARCH64 FAILED
@@ -61,7 +59,6 @@ REHLMASTER BIONIC AARCH64 FAILED
 + local name=rehlds-bionic-armv7 src=src/buildchain/ReHLDS bdir=build/rehlds-bionic-armv7 tc=/home/noname/my-project/cs16-arm-release/build/toolchain-bionic-armv7.cmake
 + shift 4
 + cmake -S src/buildchain/ReHLDS -B build/rehlds-bionic-armv7 -DCMAKE_TOOLCHAIN_FILE=/home/noname/my-project/cs16-arm-release/build/toolchain-bionic-armv7.cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_POLICY_VERSION_MINIMUM=3.5 -DUSE_STATIC_LIBSTDC=OFF
-+ cmake --build build/rehlds-bionic-armv7 -j4
 + echo 'rehlds-bionic-armv7 FAILED'
 rehlds-bionic-armv7 FAILED
 + fail=1
@@ -83,7 +80,6 @@ regamedll-bionic-armv7 FAILED
 + local name=reunion-bionic-armv7 src=src/ReUnion/reunion bdir=build/reunion-bionic-armv7 tc=/home/noname/my-project/cs16-arm-release/build/toolchain-bionic-armv7.cmake
 + shift 4
 + cmake -S src/ReUnion/reunion -B build/reunion-bionic-armv7 -DCMAKE_TOOLCHAIN_FILE=/home/noname/my-project/cs16-arm-release/build/toolchain-bionic-armv7.cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_POLICY_VERSION_MINIMUM=3.5 -DUSE_STATIC_LIBSTDC=OFF
-+ cmake --build build/reunion-bionic-armv7 -j4
 + echo 'reunion-bionic-armv7 FAILED'
 reunion-bionic-armv7 FAILED
 + fail=1
