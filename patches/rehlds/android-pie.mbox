@@ -1,0 +1,106 @@
+From c52810db9d2366649f05b8283578a4304faa3cd9 Mon Sep 17 00:00:00 2001
+From: cs16-arm <cs16-arm@local>
+Date: Sat, 21 Nov 2026 14:18:06 +0200
+Subject: [PATCH] android: build dedicated and hltv as PIE, keep stack
+ non-executable
+
+---
+ rehlds/HLTV/Console/CMakeLists.txt | 30 ++++++++++++++++++++----------
+ rehlds/dedicated/CMakeLists.txt    | 30 ++++++++++++++++++++----------
+ 2 files changed, 40 insertions(+), 20 deletions(-)
+
+diff --git a/rehlds/HLTV/Console/CMakeLists.txt b/rehlds/HLTV/Console/CMakeLists.txt
+index c06f622..b32ad2c 100644
+--- a/rehlds/HLTV/Console/CMakeLists.txt
++++ b/rehlds/HLTV/Console/CMakeLists.txt
+@@ -11,21 +11,31 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
+ # Avoid -rdynamic -fPIC options
+ set(CMAKE_SHARED_LIBRARY_LINK_CXX_FLAGS "")
+ 
+-set(COMPILE_FLAGS "${ARCH_BITNESS_FLAG} -fno-pic -fno-pie -U_FORTIFY_SOURCE -DFORTIFY_SOURCE=0")
+-set(LINK_FLAGS "${ARCH_BITNESS_FLAG} -no-pie -Wl,--no-export-dynamic")
++# Bionic's loader rejects ET_EXEC: an Android build must produce PIE.
++# Non-Android builds keep the original non-PIE behaviour unchanged.
++if(ANDROID)
++	set(COMPILE_FLAGS "${ARCH_BITNESS_FLAG} -fPIE -U_FORTIFY_SOURCE -DFORTIFY_SOURCE=0")
++	set(LINK_FLAGS "${ARCH_BITNESS_FLAG} -pie -Wl,--no-export-dynamic")
++else()
++	set(COMPILE_FLAGS "${ARCH_BITNESS_FLAG} -fno-pic -fno-pie -U_FORTIFY_SOURCE -DFORTIFY_SOURCE=0")
++	set(LINK_FLAGS "${ARCH_BITNESS_FLAG} -no-pie -Wl,--no-export-dynamic")
++endif()
+ 
+ set(COMPILE_FLAGS "${COMPILE_FLAGS} -Wall -fno-exceptions -fno-strict-aliasing -fno-strict-overflow")
+ 
+-check_cxx_compiler_flag("-Wa,--execstack" HAS_EXECSTACK_ASM)
+-check_cxx_compiler_flag("-Wl,-z,execstack" HAS_EXECSTACK_LINK)
++# Glibc >=2.41 fixes. Bionic does not need an executable stack, and keeping
++# the stack non-executable avoids PT_GNU_STACK=RWE on Android.
++if(NOT ANDROID)
++	check_cxx_compiler_flag("-Wa,--execstack" HAS_EXECSTACK_ASM)
++	check_cxx_compiler_flag("-Wl,-z,execstack" HAS_EXECSTACK_LINK)
+ 
+-# Glibc >=2.41 fixes
+-if(HAS_EXECSTACK_ASM)
+-	set(COMPILE_FLAGS "${COMPILE_FLAGS} -Wa,--execstack")
+-endif()
++	if(HAS_EXECSTACK_ASM)
++		set(COMPILE_FLAGS "${COMPILE_FLAGS} -Wa,--execstack")
++	endif()
+ 
+-if(HAS_EXECSTACK_LINK)
+-	set(LINK_FLAGS "${LINK_FLAGS} -Wl,-z,execstack")
++	if(HAS_EXECSTACK_LINK)
++		set(LINK_FLAGS "${LINK_FLAGS} -Wl,-z,execstack")
++	endif()
+ endif()
+ 
+ if (DEBUG)
+diff --git a/rehlds/dedicated/CMakeLists.txt b/rehlds/dedicated/CMakeLists.txt
+index 2404585..1c9eb37 100644
+--- a/rehlds/dedicated/CMakeLists.txt
++++ b/rehlds/dedicated/CMakeLists.txt
+@@ -11,21 +11,31 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
+ # Avoid -rdynamic -fPIC options
+ set(CMAKE_SHARED_LIBRARY_LINK_CXX_FLAGS "")
+ 
+-set(COMPILE_FLAGS "${ARCH_BITNESS_FLAG} -fno-pic -fno-pie -U_FORTIFY_SOURCE -DFORTIFY_SOURCE=0")
+-set(LINK_FLAGS "${ARCH_BITNESS_FLAG} -no-pie -Wl,--no-export-dynamic")
++# Bionic's loader rejects ET_EXEC: an Android build must produce PIE.
++# Non-Android builds keep the original non-PIE behaviour unchanged.
++if(ANDROID)
++	set(COMPILE_FLAGS "${ARCH_BITNESS_FLAG} -fPIE -U_FORTIFY_SOURCE -DFORTIFY_SOURCE=0")
++	set(LINK_FLAGS "${ARCH_BITNESS_FLAG} -pie -Wl,--no-export-dynamic")
++else()
++	set(COMPILE_FLAGS "${ARCH_BITNESS_FLAG} -fno-pic -fno-pie -U_FORTIFY_SOURCE -DFORTIFY_SOURCE=0")
++	set(LINK_FLAGS "${ARCH_BITNESS_FLAG} -no-pie -Wl,--no-export-dynamic")
++endif()
+ 
+ set(COMPILE_FLAGS "${COMPILE_FLAGS} -Wall -fno-exceptions -fno-strict-aliasing -fno-strict-overflow")
+ 
+-check_cxx_compiler_flag("-Wa,--execstack" HAS_EXECSTACK_ASM)
+-check_cxx_compiler_flag("-Wl,-z,execstack" HAS_EXECSTACK_LINK)
++# Glibc >=2.41 fixes. Bionic does not need an executable stack, and keeping
++# the stack non-executable avoids PT_GNU_STACK=RWE on Android.
++if(NOT ANDROID)
++	check_cxx_compiler_flag("-Wa,--execstack" HAS_EXECSTACK_ASM)
++	check_cxx_compiler_flag("-Wl,-z,execstack" HAS_EXECSTACK_LINK)
+ 
+-# Glibc >=2.41 fixes
+-if(HAS_EXECSTACK_ASM)
+-	set(COMPILE_FLAGS "${COMPILE_FLAGS} -Wa,--execstack")
+-endif()
++	if(HAS_EXECSTACK_ASM)
++		set(COMPILE_FLAGS "${COMPILE_FLAGS} -Wa,--execstack")
++	endif()
+ 
+-if(HAS_EXECSTACK_LINK)
+-	set(LINK_FLAGS "${LINK_FLAGS} -Wl,-z,execstack")
++	if(HAS_EXECSTACK_LINK)
++		set(LINK_FLAGS "${LINK_FLAGS} -Wl,-z,execstack")
++	endif()
+ endif()
+ 
+ if (DEBUG)
+-- 
+2.56.1
+

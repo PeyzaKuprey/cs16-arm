@@ -65,8 +65,12 @@ echo "set gamedll_linux \"\$val\" in \$lib"
 EOF
   chmod +x "$D/apply-liblist.sh"
 
-  if [ -f "$ROOT/docs/README-dropin-template.md" ]; then
-    sed "s/<arch>/$arch/g" "$ROOT/docs/README-dropin-template.md" > "$D/README-dropin.md"
+  # Bionic builds need the Termux/Android README, never the glibc/Bootlin one.
+  if [ -f "$ROOT/docs/README-dropin-bionic-template.md" ]; then
+    sed "s/<arch>/$arch/g" "$ROOT/docs/README-dropin-bionic-template.md" > "$D/README-dropin.md"
+  else
+    echo "error: missing docs/README-dropin-bionic-template.md" >&2
+    exit 1
   fi
 
   echo "== zipping hlds-dropin-cs16-$arch.zip"
