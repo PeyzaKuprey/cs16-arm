@@ -26,7 +26,15 @@ scripts, drop-in assembly and smoke tests.
 Exact SHAs live in `scripts/fetch-sources.sh`; the whole port is a patchset
 per project under `patches/` (applied on an `arm` branch, see below).
 
-## Quick start
+Two build lines:
+
+- **Bionic** (`build/build-bionic.sh`) — Android NDK clang, libc++ static:
+  native Termux binaries, no proot.  Requires `$ANDROID_NDK`
+  (developer.android.com/ndk, r26+).  Deploy guide: `docs/TERMX.md`.
+- **glibc** (`build/build-armv7.sh` / `build-aarch64.sh`) — Bootlin gcc
+  toolchains: runs under proot-distro / any glibc ARM rootfs.
+
+## Quick start (glibc line)
 
 ```bash
 bash scripts/fetch-toolchains.sh    # ~260 MB Bootlin toolchains into ./toolchains
@@ -73,7 +81,16 @@ fan the i386-only assumptions out to ARM.  Highlights (full notes in
   arches (pure C, no arch assumptions); built into
   `build/hlmaster-<arch>/hlmaster`.  See `docs/AUX-PROJECTS.md`.
 
-## Verification status
+## Verification status (Bionic line)
+
+- ✅ full stack builds against Bionic for **both arches**: ReHLDS
+  (engine + dedicated + HLTV), Metamod-R, ReGameDLL_CS, ReUnion,
+  rehlmaster, hlmaster — NEEDED lists are bionic-clean (`libc.so`,
+  `libdl.so`, `libm.so`; zero glibc references)
+- ✅ drop-in zips: `dist-bionic/hlds-dropin-cs16-bionic-{armv7,aarch64}.zip`
+- ⏳ on-device soak in Termux — pending hardware
+
+## Verification status (glibc line)
 
 - ✅ all 11 artifacts per arch: ARM ELF, dlopen-clean under qemu-user
 - ✅ full end-to-end under qemu-user with real steamcmd cstrike content:

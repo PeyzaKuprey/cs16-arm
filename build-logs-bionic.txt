@@ -16,9 +16,6 @@
 + rm -rf build/rehlds-bionic-aarch64
 + cmake -S src/buildchain/ReHLDS -B build/rehlds-bionic-aarch64 -DCMAKE_TOOLCHAIN_FILE=/home/noname/my-project/cs16-arm-release/build/toolchain-bionic-aarch64.cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_POLICY_VERSION_MINIMUM=3.5 -DUSE_STATIC_LIBSTDC=OFF
 + cmake --build build/rehlds-bionic-aarch64 -j4
-+ echo 'rehlds-bionic-aarch64 FAILED'
-rehlds-bionic-aarch64 FAILED
-+ fail=1
 + build_cmake metamod-bionic-aarch64 src/buildchain/Metamod-R build/metamod-bionic-aarch64 /home/noname/my-project/cs16-arm-release/build/toolchain-bionic-aarch64.cmake
 + local name=metamod-bionic-aarch64 src=src/buildchain/Metamod-R bdir=build/metamod-bionic-aarch64 tc=/home/noname/my-project/cs16-arm-release/build/toolchain-bionic-aarch64.cmake
 + shift 4
@@ -47,9 +44,6 @@ rehlds-bionic-aarch64 FAILED
 + rm -rf build/rehlds-bionic-armv7
 + cmake -S src/buildchain/ReHLDS -B build/rehlds-bionic-armv7 -DCMAKE_TOOLCHAIN_FILE=/home/noname/my-project/cs16-arm-release/build/toolchain-bionic-armv7.cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_POLICY_VERSION_MINIMUM=3.5 -DUSE_STATIC_LIBSTDC=OFF
 + cmake --build build/rehlds-bionic-armv7 -j4
-+ echo 'rehlds-bionic-armv7 FAILED'
-rehlds-bionic-armv7 FAILED
-+ fail=1
 + build_cmake metamod-bionic-armv7 src/buildchain/Metamod-R build/metamod-bionic-armv7 /home/noname/my-project/cs16-arm-release/build/toolchain-bionic-armv7.cmake -DMETAMOD_CPP_CALLBACKS=ON
 + local name=metamod-bionic-armv7 src=src/buildchain/Metamod-R bdir=build/metamod-bionic-armv7 tc=/home/noname/my-project/cs16-arm-release/build/toolchain-bionic-armv7.cmake
 + shift 4
@@ -72,6 +66,6 @@ rehlds-bionic-armv7 FAILED
 + /home/noname/android/ndk/toolchains/llvm/prebuilt/linux-x86_64/bin/armv7a-linux-androideabi24-clang++ -std=c++11 -w -O3 -s -shared -fno-stack-protector -fno-strict-aliasing -fno-strict-overflow -fvisibility=hidden -fPIC -Isrc/rehlmaster/src -Isrc/rehlmaster/dep/rehlsdk/common -Isrc/rehlmaster/dep/rehlsdk/dlls -Isrc/rehlmaster/dep/rehlsdk/engine -Isrc/rehlmaster/dep/rehlsdk/public -Isrc/rehlmaster/dep/metamod src/rehlmaster/src/dllapi.cpp src/rehlmaster/src/engine_api.cpp src/rehlmaster/src/ex_rehlds_api.cpp src/rehlmaster/src/h_export.cpp src/rehlmaster/src/meta_api.cpp src/rehlmaster/src/public_amalgamation.cpp src/rehlmaster/src/rehlmaster.cpp src/rehlmaster/src/server_info.cpp src/rehlmaster/src/sizebuf.cpp src/rehlmaster/src/utils.cpp -o build/rehlmaster-bionic-armv7/rehlmaster.so
 + mkdir -p build/hlmaster-bionic-armv7
 + /home/noname/android/ndk/toolchains/llvm/prebuilt/linux-x86_64/bin/armv7a-linux-androideabi24-clang -O3 -w -s -fvisibility=hidden -fno-strict-aliasing -fno-strict-overflow src/hlmaster/hlmaster.c -o build/hlmaster-bionic-armv7/hlmaster
-+ echo '=== DONE fail=1 ==='
-=== DONE fail=1 ===
-+ exit 1
++ echo '=== DONE fail=0 ==='
+=== DONE fail=0 ===
++ exit 0
