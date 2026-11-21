@@ -18,6 +18,8 @@ fail=0
 
 build_cmake() {
   local name=$1 src=$2 bdir=$3 tc=$4; shift 4
+  # always configure from scratch: stale build dirs mix old and new flags
+  rm -rf "$bdir"
   cmake -S "$src" -B "$bdir" -DCMAKE_TOOLCHAIN_FILE="$tc" -DCMAKE_BUILD_TYPE=Release \
     -DCMAKE_POLICY_VERSION_MINIMUM=3.5 -DUSE_STATIC_LIBSTDC=OFF "$@" \
     > "$LOGS/${name}-configure.log" 2>&1 \
@@ -32,7 +34,7 @@ build_cmake reunion-bionic-aarch64 src/ReUnion/reunion         build/reunion-bio
 
 mkdir -p build/rehlmaster-bionic-aarch64
 $ANDROID_NDK/toolchains/llvm/prebuilt/linux-x86_64/bin/aarch64-linux-android24-clang++ -std=c++11 -w -O3 -s -shared \
-  -fno-stack-protector -fno-strict-aliasing -fno-strict-overflow -fvisibility=hidden \
+  -fno-stack-protector -fno-strict-aliasing -fno-strict-overflow -fvisibility=hidden -fPIC \
   -Isrc/rehlmaster/src \
   -Isrc/rehlmaster/dep/rehlsdk/common -Isrc/rehlmaster/dep/rehlsdk/dlls -Isrc/rehlmaster/dep/rehlsdk/engine -Isrc/rehlmaster/dep/rehlsdk/public \
   -Isrc/rehlmaster/dep/metamod \
@@ -53,7 +55,7 @@ build_cmake reunion-bionic-armv7  src/ReUnion/reunion          build/reunion-bio
 
 mkdir -p build/rehlmaster-bionic-armv7
 $ANDROID_NDK/toolchains/llvm/prebuilt/linux-x86_64/bin/armv7a-linux-androideabi24-clang++ -std=c++11 -w -O3 -s -shared \
-  -fno-stack-protector -fno-strict-aliasing -fno-strict-overflow -fvisibility=hidden \
+  -fno-stack-protector -fno-strict-aliasing -fno-strict-overflow -fvisibility=hidden -fPIC \
   -Isrc/rehlmaster/src \
   -Isrc/rehlmaster/dep/rehlsdk/common -Isrc/rehlmaster/dep/rehlsdk/dlls -Isrc/rehlmaster/dep/rehlsdk/engine -Isrc/rehlmaster/dep/rehlsdk/public \
   -Isrc/rehlmaster/dep/metamod \

@@ -1,7 +1,7 @@
 From 19b38565ef4bef1535d60483a8e53e89b2e0ddfa Mon Sep 17 00:00:00 2001
 From: cs16-arm <cs16-arm@local>
 Date: Sat, 21 Nov 2026 01:29:21 +0200
-Subject: [PATCH 1/3] bionic: pthread/dl are inside libc on Android, skip stub
+Subject: [PATCH 1/4] bionic: pthread/dl are inside libc on Android, skip stub
  libs
 
 ---
@@ -1088,7 +1088,7 @@ HcmV?d00001
 From c38b7e8b346208a40dc1d87f9808b738259eb9df Mon Sep 17 00:00:00 2001
 From: cs16-arm <cs16-arm@local>
 Date: Sat, 21 Nov 2026 01:54:51 +0200
-Subject: [PATCH 2/3] bionic: version-script link flag only off-Android (lld
+Subject: [PATCH 2/4] bionic: version-script link flag only off-Android (lld
  rejects _init/_fini)
 
 ---
@@ -1128,7 +1128,7 @@ index eec3747..e273ea1 100644
 From 5375e5abe19f8c805f67685e13838134a4dc40d3 Mon Sep 17 00:00:00 2001
 From: cs16-arm <cs16-arm@local>
 Date: Sat, 21 Nov 2026 02:04:31 +0200
-Subject: [PATCH 3/3] bionic: fix missing closing quote in version-script guard
+Subject: [PATCH 3/4] bionic: fix missing closing quote in version-script guard
 
 ---
  rehlds/CMakeLists.txt | 2 +-
@@ -1147,6 +1147,31 @@ index e273ea1..8b978c8 100644
  		endif()
  	endif()
  
+-- 
+2.56.1
+
+
+From 8143d58e3ee4a9cd58e433b29964bf6b1d3e5c11 Mon Sep 17 00:00:00 2001
+From: cs16-arm <cs16-arm@local>
+Date: Sat, 21 Nov 2026 02:26:42 +0200
+Subject: [PATCH 4/4] bionic: skip exports.ver version script (lld rejects
+ _init/_fini)
+
+---
+ dep/libsteam_api/CMakeLists.txt | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/dep/libsteam_api/CMakeLists.txt b/dep/libsteam_api/CMakeLists.txt
+index aa103b1..c63c415 100644
+--- a/dep/libsteam_api/CMakeLists.txt
++++ b/dep/libsteam_api/CMakeLists.txt
+@@ -160,5 +160,5 @@ target_link_options(libsteam_api_shim PRIVATE
+     -Wl,-soname,libsteam_api.so
+     # Version script forces _init/_fini into .dynsym to match legacy lib's
+     # 59-symbol surface (modern binutils marks them local by default).
+-    "-Wl,--version-script=${CMAKE_CURRENT_SOURCE_DIR}/exports.ver"
++    $<$<NOT:$<BOOL:${ANDROID}>>:-Wl,--version-script=${CMAKE_CURRENT_SOURCE_DIR}/exports.ver>
+ )
 -- 
 2.56.1
 

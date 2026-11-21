@@ -1,7 +1,7 @@
 From d6924d22688607d9ad4313d778a722d6f54c5f22 Mon Sep 17 00:00:00 2001
 From: cs16-arm <cs16-arm@local>
 Date: Fri, 20 Nov 2026 23:27:10 +0200
-Subject: [PATCH 1/3] arm: build for armv7-a / aarch64
+Subject: [PATCH 1/4] arm: build for armv7-a / aarch64
 
 - ARCH_ARM detection: skip x86 tuning flags, PIC required for the
   shared object (POSITION_INDEPENDENT_CODE ON on ARM, OFF on x86-32
@@ -91,7 +91,7 @@ index 230bcab..a9f8ad0 100644
 From 37bffb9baf246501fe64b1c5f094c9ac37d1ffd1 Mon Sep 17 00:00:00 2001
 From: cs16-arm <cs16-arm@local>
 Date: Sat, 21 Nov 2026 01:47:09 +0200
-Subject: [PATCH 2/3] bionic: version-script link flag only off-Android (lld
+Subject: [PATCH 2/4] bionic: version-script link flag only off-Android (lld
  rejects _init/_fini)
 
 ---
@@ -131,7 +131,7 @@ index 1ca6f70..bf92d60 100644
 From 92a936f74c42540f548dd4c080d6d1a03ce6eb34 Mon Sep 17 00:00:00 2001
 From: cs16-arm <cs16-arm@local>
 Date: Sat, 21 Nov 2026 02:04:31 +0200
-Subject: [PATCH 3/3] bionic: fix missing closing quote in version-script guard
+Subject: [PATCH 3/4] bionic: fix missing closing quote in version-script guard
 
 ---
  regamedll/CMakeLists.txt | 2 +-
@@ -150,6 +150,40 @@ index bf92d60..b83c021 100644
  		endif()
  	endif()
  
+-- 
+2.56.1
+
+
+From 5364fcb55f3a92ad3fecb9652d106d5a5e170ec6 Mon Sep 17 00:00:00 2001
+From: cs16-arm <cs16-arm@local>
+Date: Sat, 21 Nov 2026 02:26:42 +0200
+Subject: [PATCH 4/4] bionic: skip i386 glibc-compat libm dir and -z notext
+
+---
+ regamedll/CMakeLists.txt | 7 +++++--
+ 1 file changed, 5 insertions(+), 2 deletions(-)
+
+diff --git a/regamedll/CMakeLists.txt b/regamedll/CMakeLists.txt
+index b83c021..208952e 100644
+--- a/regamedll/CMakeLists.txt
++++ b/regamedll/CMakeLists.txt
+@@ -433,11 +433,14 @@ endif()
+ 
+ set(LINK_FLAGS "${LINK_FLAGS} -Wl,-rpath,'$ORIGIN/.'")
+ 
+-if (CMAKE_SIZEOF_VOID_P EQUAL 4)
++if (CMAKE_SIZEOF_VOID_P EQUAL 4 AND NOT ANDROID)
++	# glibc-compat libm for i386; on bionic the system libm is correct
+ 	set(LINK_FLAGS "${LINK_FLAGS} -L${PROJECT_SOURCE_DIR}/lib/linux32")
+ endif()
+ 
+-set(LINK_FLAGS "${LINK_FLAGS} -Wl,-z,notext")
++if (NOT ANDROID)
++	set(LINK_FLAGS "${LINK_FLAGS} -Wl,-z,notext")
++endif()
+ 
+ set_target_properties(regamedll PROPERTIES
+ 	COMPILE_FLAGS ${COMPILE_FLAGS}
 -- 
 2.56.1
 

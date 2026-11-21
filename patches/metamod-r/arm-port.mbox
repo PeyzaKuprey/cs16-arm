@@ -1,7 +1,7 @@
 From e29c244b187713e2051d5db898d2121115e838c8 Mon Sep 17 00:00:00 2001
 From: cs16-arm <cs16-arm@local>
 Date: Fri, 20 Nov 2026 23:27:04 +0200
-Subject: [PATCH 1/5] arm: add METAMOD_CPP_CALLBACKS mode; armv7 target
+Subject: [PATCH 1/6] arm: add METAMOD_CPP_CALLBACKS mode; armv7 target
 
 - armv7: no AsmJit x86 JIT available; instead of emitting machine
   code per callback, every hooked engine/gamedll function gets a
@@ -315,7 +315,7 @@ index d164927..fcf150c 100644
 From 9c40ccdf7e904d98736fca4a286f9680361a3a82 Mon Sep 17 00:00:00 2001
 From: cs16-arm <cs16-arm@local>
 Date: Fri, 20 Nov 2026 23:49:28 +0200
-Subject: [PATCH 2/5] arm: actually wire METAMOD_CPP_CALLBACKS and drop JIT
+Subject: [PATCH 2/6] arm: actually wire METAMOD_CPP_CALLBACKS and drop JIT
  tramps under it
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -463,7 +463,7 @@ index edb96cc..e1a9bb9 100644
 From 3a2ba7835fe2be61c79ce1ddd5bac81fc900bd8f Mon Sep 17 00:00:00 2001
 From: cs16-arm <cs16-arm@local>
 Date: Sat, 21 Nov 2026 01:29:21 +0200
-Subject: [PATCH 3/5] bionic: pthread/dl are inside libc on Android, skip stub
+Subject: [PATCH 3/6] bionic: pthread/dl are inside libc on Android, skip stub
  libs
 
 ---
@@ -492,7 +492,7 @@ index d03b143..e5d275b 100644
 From 3b40cceafa34314c0c6974b5b363c9a56d015a6f Mon Sep 17 00:00:00 2001
 From: cs16-arm <cs16-arm@local>
 Date: Sat, 21 Nov 2026 01:45:28 +0200
-Subject: [PATCH 4/5] bionic: RTLD_DEEPBIND define fallback; version-script
+Subject: [PATCH 4/6] bionic: RTLD_DEEPBIND define fallback; version-script
  only off-Android
 
 ---
@@ -549,7 +549,7 @@ index d487306..26b5001 100644
 From 967f3cfbc1b6a2f38bcaf7d3fddaa8a6afafbcbe Mon Sep 17 00:00:00 2001
 From: cs16-arm <cs16-arm@local>
 Date: Sat, 21 Nov 2026 02:04:31 +0200
-Subject: [PATCH 5/5] bionic: fix missing closing quote in version-script guard
+Subject: [PATCH 5/6] bionic: fix missing closing quote in version-script guard
 
 ---
  metamod/CMakeLists.txt | 2 +-
@@ -568,6 +568,43 @@ index 587d82c..474f6db 100644
  		endif()
  	endif()
  
+-- 
+2.56.1
+
+
+From a5b9f0a6db6bf31a593d577523a5bb84a69ab220 Mon Sep 17 00:00:00 2001
+From: cs16-arm <cs16-arm@local>
+Date: Sat, 21 Nov 2026 02:26:42 +0200
+Subject: [PATCH 6/6] bionic: skip glibc stat64 wrap and glibc_compat.cpp
+
+---
+ metamod/CMakeLists.txt | 6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
+
+diff --git a/metamod/CMakeLists.txt b/metamod/CMakeLists.txt
+index 474f6db..da52eec 100644
+--- a/metamod/CMakeLists.txt
++++ b/metamod/CMakeLists.txt
+@@ -166,7 +166,9 @@ endif()
+ 		endif()
+ 	endif()
+ 
+-if (CMAKE_BUILD_TYPE MATCHES COMPAT_GLIBC)
++if (CMAKE_BUILD_TYPE MATCHES COMPAT_GLIBC AND NOT ANDROID)
++	# --wrap=stat64 + src/glibc_compat.cpp are glibc-only hacks; bionic's
++	# stat64 is already the native one (and the compat symbols don't exist)
+ 	set(LINK_FLAGS	"${LINK_FLAGS} -Wl,--wrap=stat64")
+ endif()
+ 
+@@ -247,7 +249,7 @@ target_sources(metamod PRIVATE
+ 	"src/studioapi.cpp"
+ 	"src/sys_module.cpp"
+ 	"src/utils.cpp"
+-	"src/glibc_compat.cpp"
++	$<$<NOT:$<BOOL:${ANDROID}>>:src/glibc_compat.cpp>
+ )
+ 
+ if (METAMOD_ARCH_AARCH64)
 -- 
 2.56.1
 

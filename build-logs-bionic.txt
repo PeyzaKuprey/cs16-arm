@@ -13,42 +13,47 @@
 + build_cmake rehlds-bionic-aarch64 src/buildchain/ReHLDS build/rehlds-bionic-aarch64 /home/noname/my-project/cs16-arm-release/build/toolchain-bionic-aarch64.cmake
 + local name=rehlds-bionic-aarch64 src=src/buildchain/ReHLDS bdir=build/rehlds-bionic-aarch64 tc=/home/noname/my-project/cs16-arm-release/build/toolchain-bionic-aarch64.cmake
 + shift 4
++ rm -rf build/rehlds-bionic-aarch64
 + cmake -S src/buildchain/ReHLDS -B build/rehlds-bionic-aarch64 -DCMAKE_TOOLCHAIN_FILE=/home/noname/my-project/cs16-arm-release/build/toolchain-bionic-aarch64.cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_POLICY_VERSION_MINIMUM=3.5 -DUSE_STATIC_LIBSTDC=OFF
++ cmake --build build/rehlds-bionic-aarch64 -j4
 + echo 'rehlds-bionic-aarch64 FAILED'
 rehlds-bionic-aarch64 FAILED
 + fail=1
 + build_cmake metamod-bionic-aarch64 src/buildchain/Metamod-R build/metamod-bionic-aarch64 /home/noname/my-project/cs16-arm-release/build/toolchain-bionic-aarch64.cmake
 + local name=metamod-bionic-aarch64 src=src/buildchain/Metamod-R bdir=build/metamod-bionic-aarch64 tc=/home/noname/my-project/cs16-arm-release/build/toolchain-bionic-aarch64.cmake
 + shift 4
++ rm -rf build/metamod-bionic-aarch64
 + cmake -S src/buildchain/Metamod-R -B build/metamod-bionic-aarch64 -DCMAKE_TOOLCHAIN_FILE=/home/noname/my-project/cs16-arm-release/build/toolchain-bionic-aarch64.cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_POLICY_VERSION_MINIMUM=3.5 -DUSE_STATIC_LIBSTDC=OFF
++ cmake --build build/metamod-bionic-aarch64 -j4
 + echo 'metamod-bionic-aarch64 FAILED'
 metamod-bionic-aarch64 FAILED
 + fail=1
 + build_cmake regamedll-bionic-aarch64 src/ReGameDLL_CS build/regamedll-bionic-aarch64 /home/noname/my-project/cs16-arm-release/build/toolchain-bionic-aarch64.cmake -DX64BITS=ON
 + local name=regamedll-bionic-aarch64 src=src/ReGameDLL_CS bdir=build/regamedll-bionic-aarch64 tc=/home/noname/my-project/cs16-arm-release/build/toolchain-bionic-aarch64.cmake
 + shift 4
++ rm -rf build/regamedll-bionic-aarch64
 + cmake -S src/ReGameDLL_CS -B build/regamedll-bionic-aarch64 -DCMAKE_TOOLCHAIN_FILE=/home/noname/my-project/cs16-arm-release/build/toolchain-bionic-aarch64.cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_POLICY_VERSION_MINIMUM=3.5 -DUSE_STATIC_LIBSTDC=OFF -DX64BITS=ON
-+ echo 'regamedll-bionic-aarch64 FAILED'
-regamedll-bionic-aarch64 FAILED
-+ fail=1
++ cmake --build build/regamedll-bionic-aarch64 -j4
 + build_cmake reunion-bionic-aarch64 src/ReUnion/reunion build/reunion-bionic-aarch64 /home/noname/my-project/cs16-arm-release/build/toolchain-bionic-aarch64.cmake
 + local name=reunion-bionic-aarch64 src=src/ReUnion/reunion bdir=build/reunion-bionic-aarch64 tc=/home/noname/my-project/cs16-arm-release/build/toolchain-bionic-aarch64.cmake
 + shift 4
++ rm -rf build/reunion-bionic-aarch64
 + cmake -S src/ReUnion/reunion -B build/reunion-bionic-aarch64 -DCMAKE_TOOLCHAIN_FILE=/home/noname/my-project/cs16-arm-release/build/toolchain-bionic-aarch64.cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_POLICY_VERSION_MINIMUM=3.5 -DUSE_STATIC_LIBSTDC=OFF
++ cmake --build build/reunion-bionic-aarch64 -j4
 + echo 'reunion-bionic-aarch64 FAILED'
 reunion-bionic-aarch64 FAILED
 + fail=1
 + mkdir -p build/rehlmaster-bionic-aarch64
 + /home/noname/android/ndk/toolchains/llvm/prebuilt/linux-x86_64/bin/aarch64-linux-android24-clang++ -std=c++11 -w -O3 -s -shared -fno-stack-protector -fno-strict-aliasing -fno-strict-overflow -fvisibility=hidden -Isrc/rehlmaster/src -Isrc/rehlmaster/dep/rehlsdk/common -Isrc/rehlmaster/dep/rehlsdk/dlls -Isrc/rehlmaster/dep/rehlsdk/engine -Isrc/rehlmaster/dep/rehlsdk/public -Isrc/rehlmaster/dep/metamod src/rehlmaster/src/dllapi.cpp src/rehlmaster/src/engine_api.cpp src/rehlmaster/src/ex_rehlds_api.cpp src/rehlmaster/src/h_export.cpp src/rehlmaster/src/meta_api.cpp src/rehlmaster/src/public_amalgamation.cpp src/rehlmaster/src/rehlmaster.cpp src/rehlmaster/src/server_info.cpp src/rehlmaster/src/sizebuf.cpp src/rehlmaster/src/utils.cpp -o build/rehlmaster-bionic-aarch64/rehlmaster.so
 ld.lld: error: relocation R_AARCH64_ADR_PREL_PG_HI21 cannot be used against symbol 'CreateInterface'; recompile with -fPIC
->>> defined in /tmp/public_amalgamation-155f53.o
+>>> defined in /tmp/public_amalgamation-3de3a5.o
 >>> referenced by public_amalgamation.cpp
->>>               /tmp/public_amalgamation-155f53.o:(Sys_GetFactoryThis())
+>>>               /tmp/public_amalgamation-3de3a5.o:(Sys_GetFactoryThis())
 
 ld.lld: error: relocation R_AARCH64_ADD_ABS_LO12_NC cannot be used against symbol 'CreateInterface'; recompile with -fPIC
->>> defined in /tmp/public_amalgamation-155f53.o
+>>> defined in /tmp/public_amalgamation-3de3a5.o
 >>> referenced by public_amalgamation.cpp
->>>               /tmp/public_amalgamation-155f53.o:(Sys_GetFactoryThis())
+>>>               /tmp/public_amalgamation-3de3a5.o:(Sys_GetFactoryThis())
 clang-17: error: linker command failed with exit code 1 (use -v to see invocation)
 + echo 'REHLMASTER BIONIC AARCH64 FAILED'
 REHLMASTER BIONIC AARCH64 FAILED
@@ -58,28 +63,36 @@ REHLMASTER BIONIC AARCH64 FAILED
 + build_cmake rehlds-bionic-armv7 src/buildchain/ReHLDS build/rehlds-bionic-armv7 /home/noname/my-project/cs16-arm-release/build/toolchain-bionic-armv7.cmake
 + local name=rehlds-bionic-armv7 src=src/buildchain/ReHLDS bdir=build/rehlds-bionic-armv7 tc=/home/noname/my-project/cs16-arm-release/build/toolchain-bionic-armv7.cmake
 + shift 4
++ rm -rf build/rehlds-bionic-armv7
 + cmake -S src/buildchain/ReHLDS -B build/rehlds-bionic-armv7 -DCMAKE_TOOLCHAIN_FILE=/home/noname/my-project/cs16-arm-release/build/toolchain-bionic-armv7.cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_POLICY_VERSION_MINIMUM=3.5 -DUSE_STATIC_LIBSTDC=OFF
++ cmake --build build/rehlds-bionic-armv7 -j4
 + echo 'rehlds-bionic-armv7 FAILED'
 rehlds-bionic-armv7 FAILED
 + fail=1
 + build_cmake metamod-bionic-armv7 src/buildchain/Metamod-R build/metamod-bionic-armv7 /home/noname/my-project/cs16-arm-release/build/toolchain-bionic-armv7.cmake -DMETAMOD_CPP_CALLBACKS=ON
 + local name=metamod-bionic-armv7 src=src/buildchain/Metamod-R bdir=build/metamod-bionic-armv7 tc=/home/noname/my-project/cs16-arm-release/build/toolchain-bionic-armv7.cmake
 + shift 4
++ rm -rf build/metamod-bionic-armv7
 + cmake -S src/buildchain/Metamod-R -B build/metamod-bionic-armv7 -DCMAKE_TOOLCHAIN_FILE=/home/noname/my-project/cs16-arm-release/build/toolchain-bionic-armv7.cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_POLICY_VERSION_MINIMUM=3.5 -DUSE_STATIC_LIBSTDC=OFF -DMETAMOD_CPP_CALLBACKS=ON
++ cmake --build build/metamod-bionic-armv7 -j4
 + echo 'metamod-bionic-armv7 FAILED'
 metamod-bionic-armv7 FAILED
 + fail=1
 + build_cmake regamedll-bionic-armv7 src/ReGameDLL_CS build/regamedll-bionic-armv7 /home/noname/my-project/cs16-arm-release/build/toolchain-bionic-armv7.cmake
 + local name=regamedll-bionic-armv7 src=src/ReGameDLL_CS bdir=build/regamedll-bionic-armv7 tc=/home/noname/my-project/cs16-arm-release/build/toolchain-bionic-armv7.cmake
 + shift 4
++ rm -rf build/regamedll-bionic-armv7
 + cmake -S src/ReGameDLL_CS -B build/regamedll-bionic-armv7 -DCMAKE_TOOLCHAIN_FILE=/home/noname/my-project/cs16-arm-release/build/toolchain-bionic-armv7.cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_POLICY_VERSION_MINIMUM=3.5 -DUSE_STATIC_LIBSTDC=OFF
++ cmake --build build/regamedll-bionic-armv7 -j4
 + echo 'regamedll-bionic-armv7 FAILED'
 regamedll-bionic-armv7 FAILED
 + fail=1
 + build_cmake reunion-bionic-armv7 src/ReUnion/reunion build/reunion-bionic-armv7 /home/noname/my-project/cs16-arm-release/build/toolchain-bionic-armv7.cmake
 + local name=reunion-bionic-armv7 src=src/ReUnion/reunion bdir=build/reunion-bionic-armv7 tc=/home/noname/my-project/cs16-arm-release/build/toolchain-bionic-armv7.cmake
 + shift 4
++ rm -rf build/reunion-bionic-armv7
 + cmake -S src/ReUnion/reunion -B build/reunion-bionic-armv7 -DCMAKE_TOOLCHAIN_FILE=/home/noname/my-project/cs16-arm-release/build/toolchain-bionic-armv7.cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_POLICY_VERSION_MINIMUM=3.5 -DUSE_STATIC_LIBSTDC=OFF
++ cmake --build build/reunion-bionic-armv7 -j4
 + echo 'reunion-bionic-armv7 FAILED'
 reunion-bionic-armv7 FAILED
 + fail=1
