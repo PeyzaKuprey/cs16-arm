@@ -59,9 +59,9 @@ for entry in "${PROJECTS[@]}"; do
     echo "== $name: applying $patchdir"
     if ! git -C "$dest" am -q "$PATCHES/$patchdir/"*.mbox 2>/dev/null; then
       git -C "$dest" am -q --abort 2>/dev/null || true
-      # stateless fallback (identical tree, keeps authorship via commit below)
-      git -C "$dest" apply --index "$PATCHES/$patchdir/"*.mbox \
-        && git -C "$dest" commit -q -m "arm: port build to armv7-a / aarch64 (patchset $patchdir)" \
+      # 3-way apply: immune to whitespace-fuzz "patch does not apply" errors
+      # (needs upstream blob objects — present, we clone from upstream)
+      git -C "$dest" am -q -3 "$PATCHES/$patchdir/"*.mbox \
         || { echo "$name: patch apply FAILED"; fail=1; continue; }
     fi
   else
