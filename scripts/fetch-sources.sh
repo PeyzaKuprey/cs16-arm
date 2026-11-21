@@ -37,7 +37,9 @@ for entry in "${PROJECTS[@]}"; do
   dest="$DEST/$(subpath $name)"
   if [ -d "$dest/.git" ]; then
     echo "== $name: already cloned, verifying SHA"
-    git -C "$dest" checkout -q $sha 2>/dev/null || { echo "$name: pinned SHA missing in existing clone"; fail=1; continue; }
+    # force: local build artifacts can dirty tracked files and block checkout
+    git -C "$dest" checkout -q -f $sha 2>/dev/null || { echo "$name: pinned SHA missing in existing clone"; fail=1; continue; }
+    git -C "$dest" reset -q --hard 2>/dev/null || true
   else
     echo "== $name: cloning $url"
     git clone -q "$url" "$dest" || { echo "$name: clone failed"; fail=1; continue; }
