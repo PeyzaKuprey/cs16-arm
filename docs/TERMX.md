@@ -36,10 +36,13 @@ will be replaced by the overlay's ARM ones.
 ```bash
 cd ~/hlds && bash apply-liblist.sh
 IP=$(ifconfig wlan0 2>/dev/null | awk '/inet /{print $2}' | head -1)
-./hlds_run -game cstrike +map de_dust2 +maxplayers 16 +ip $IP -port 27015
+LD_LIBRARY_PATH=$PWD:$PREFIX/lib ./hlds_linux -console -game cstrike \
+  -nosteam +map de_dust2 +maxplayers 16 +ip $IP -port 27015
 ```
 
-`hlds_run` invokes `hlds_linux` (the overlay's ARM launcher).  Players on
+The Bionic overlay does **not** ship `hlds_run` — launch `hlds_linux`
+directly as shown.  It is built as PIE (`ET_DYN`), which the Android loader
+requires; a non-PIE executable fails with `unexpected e_type: 2`.  Players on
 the LAN connect to `<phone-ip>:27015`; for internet play forward UDP
 27015 (and 27020 HLTV if used) on the router.
 
