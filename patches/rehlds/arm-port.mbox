@@ -1,7 +1,7 @@
 From 4d3e84a32721abf911f4afb80e68afce85a3fc22 Mon Sep 17 00:00:00 2001
 From: cs16-arm <cs16-arm@local>
 Date: Fri, 20 Nov 2026 23:26:57 +0200
-Subject: [PATCH 1/8] arm: port build to armv7-a / aarch64 (NEON)
+Subject: [PATCH 1/9] arm: port build to armv7-a / aarch64 (NEON)
 
 Fan the hardcoded -m32/-msse3/no-PIC x86 assumptions out through
 cmake/ArchFlags.cmake: ARCH_TUNE_FLAG (mtune=cortex-a53; gcc rejects
@@ -325,7 +325,7 @@ index 8f76d48..ad96e82 100644
 From 19b38565ef4bef1535d60483a8e53e89b2e0ddfa Mon Sep 17 00:00:00 2001
 From: cs16-arm <cs16-arm@local>
 Date: Sat, 21 Nov 2026 01:29:21 +0200
-Subject: [PATCH 2/8] bionic: pthread/dl are inside libc on Android, skip stub
+Subject: [PATCH 2/9] bionic: pthread/dl are inside libc on Android, skip stub
  libs
 
 ---
@@ -1412,7 +1412,7 @@ HcmV?d00001
 From c38b7e8b346208a40dc1d87f9808b738259eb9df Mon Sep 17 00:00:00 2001
 From: cs16-arm <cs16-arm@local>
 Date: Sat, 21 Nov 2026 01:54:51 +0200
-Subject: [PATCH 3/8] bionic: version-script link flag only off-Android (lld
+Subject: [PATCH 3/9] bionic: version-script link flag only off-Android (lld
  rejects _init/_fini)
 
 ---
@@ -1452,7 +1452,7 @@ index eec3747..e273ea1 100644
 From 5375e5abe19f8c805f67685e13838134a4dc40d3 Mon Sep 17 00:00:00 2001
 From: cs16-arm <cs16-arm@local>
 Date: Sat, 21 Nov 2026 02:04:31 +0200
-Subject: [PATCH 4/8] bionic: fix missing closing quote in version-script guard
+Subject: [PATCH 4/9] bionic: fix missing closing quote in version-script guard
 
 ---
  rehlds/CMakeLists.txt | 2 +-
@@ -1478,7 +1478,7 @@ index e273ea1..8b978c8 100644
 From 8143d58e3ee4a9cd58e433b29964bf6b1d3e5c11 Mon Sep 17 00:00:00 2001
 From: cs16-arm <cs16-arm@local>
 Date: Sat, 21 Nov 2026 02:26:42 +0200
-Subject: [PATCH 5/8] bionic: skip exports.ver version script (lld rejects
+Subject: [PATCH 5/9] bionic: skip exports.ver version script (lld rejects
  _init/_fini)
 
 ---
@@ -1503,7 +1503,7 @@ index aa103b1..c63c415 100644
 From d23d4248b61c4953bf56a81e676839839c81275a Mon Sep 17 00:00:00 2001
 From: cs16-arm <cs16-arm@local>
 Date: Sat, 21 Nov 2026 02:49:33 +0200
-Subject: [PATCH 6/8] bionic: ctermid() fallback to /dev/tty
+Subject: [PATCH 6/9] bionic: ctermid() fallback to /dev/tty
 
 ---
  rehlds/common/TextConsoleUnix.cpp | 6 ++++++
@@ -1533,7 +1533,7 @@ index 90af60c..577d357 100644
 From a1ad7b287840b254fc95ad7aa7360d4325be02cf Mon Sep 17 00:00:00 2001
 From: cs16-arm <cs16-arm@local>
 Date: Sat, 21 Nov 2026 03:00:08 +0200
-Subject: [PATCH 7/8] bionic: drop __xstat family wraps (bionic stat is the
+Subject: [PATCH 7/9] bionic: drop __xstat family wraps (bionic stat is the
  xstat)
 
 ---
@@ -1589,7 +1589,7 @@ index a632861..3d7f08f 100644
 From 95f9c9890666774f89d5862cb2d9b46bd0cdc970 Mon Sep 17 00:00:00 2001
 From: cs16-arm <cs16-arm@local>
 Date: Sat, 21 Nov 2026 03:23:50 +0200
-Subject: [PATCH 8/8] bionic: RTLD_DEEPBIND fallback in the dedicated launcher
+Subject: [PATCH 8/9] bionic: RTLD_DEEPBIND fallback in the dedicated launcher
 
 ---
  rehlds/dedicated/src/sys_linux.cpp | 4 ++++
@@ -1610,6 +1610,501 @@ index 814eb18..f12424c 100644
  	void *hDll = dlopen(absolute_lib, RTLD_NOW | RTLD_DEEPBIND | RTLD_LOCAL);
  #else // LAUNCHER_FIXES
  	void *hDll = dlopen(absolute_lib, RTLD_NOW);
+-- 
+2.56.1
+
+
+From 610f2bcef06acee4ca23f1f1130326b3bb2b508f Mon Sep 17 00:00:00 2001
+From: cs16-arm <cs16-arm@local>
+Date: Sat, 21 Nov 2026 03:48:02 +0200
+Subject: [PATCH 9/9] bionic: global RTLD_DEEPBIND fallback in osconfig.h
+ (engine + launcher sites)
+
+---
+ rehlds/public/rehlds/osconfig.h | 476 ++++++++++++++++----------------
+ 1 file changed, 241 insertions(+), 235 deletions(-)
+
+diff --git a/rehlds/public/rehlds/osconfig.h b/rehlds/public/rehlds/osconfig.h
+index ad96e82..6b7c761 100644
+--- a/rehlds/public/rehlds/osconfig.h
++++ b/rehlds/public/rehlds/osconfig.h
+@@ -1,235 +1,241 @@
+-/*
+-*
+-*    This program is free software; you can redistribute it and/or modify it
+-*    under the terms of the GNU General Public License as published by the
+-*    Free Software Foundation; either version 2 of the License, or (at
+-*    your option) any later version.
+-*
+-*    This program is distributed in the hope that it will be useful, but
+-*    WITHOUT ANY WARRANTY; without even the implied warranty of
+-*    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+-*    General Public License for more details.
+-*
+-*    You should have received a copy of the GNU General Public License
+-*    along with this program; if not, write to the Free Software Foundation,
+-*    Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+-*
+-*    In addition, as a special exception, the author gives permission to
+-*    link the code of this program with the Half-Life Game Engine ("HL
+-*    Engine") and Modified Game Libraries ("MODs") developed by Valve,
+-*    L.L.C ("Valve").  You must obey the GNU General Public License in all
+-*    respects for all of the code used other than the HL Engine and MODs
+-*    from Valve.  If you modify this file, you may extend this exception
+-*    to your version of the file, but you are not obligated to do so.  If
+-*    you do not wish to do so, delete this exception statement from your
+-*    version.
+-*
+-*/
+-
+-#ifndef _OSCONFIG_H
+-#define _OSCONFIG_H
+-
+-#ifdef _WIN32 // WINDOWS
+-	#pragma warning(disable : 4005)
+-#endif // _WIN32
+-
+-#include <stdio.h>
+-#include <stdlib.h>
+-#include <stdarg.h>
+-#include <stddef.h>
+-#include <string.h>
+-#include <time.h>
+-#include <math.h>
+-#include <setjmp.h>
+-#include <assert.h>
+-
+-#include <algorithm>
+-#include <deque>
+-#include <functional>
+-
+-#ifdef _WIN32 // WINDOWS
+-	#define WIN32_LEAN_AND_MEAN // Exclude rarely-used stuff from Windows headers
+-	#include <windows.h>
+-	#include <winsock.h>
+-	#include <wsipx.h> // for support IPX
+-	#define PSAPI_VERSION 1
+-	#include <psapi.h>
+-	#include <nmmintrin.h>
+-	#include <fcntl.h>
+-	#include <sys/types.h>
+-	#include <sys/stat.h>
+-	#include <io.h>
+-#else // _WIN32
+-	#include <arpa/inet.h>
+-	#include <ctype.h>
+-	//#include <dirent.h>
+-	#include <dlfcn.h>
+-	#include <elf.h>
+-	#include <errno.h>
+-	#include <fcntl.h>
+-	#include <limits.h>
+-	#include <link.h>
+-	#include <netdb.h>
+-	#include <netinet/in.h>
+-	#include <netinet/ip.h>
+-	#include <pthread.h>
+-	#include <sys/ioctl.h>
+-	#include <sys/mman.h>
+-	#include <sys/socket.h>
+-	#include <sys/stat.h>
+-	#include <sys/time.h>
+-	#include <sys/types.h>
+-	#include <sys/sysinfo.h>
+-	#include <unistd.h>
+-#endif // _WIN32
+-
+-#include <string>
+-#include <sstream>
+-#include <fstream>
+-#include <iomanip>
+-
+-#if defined(__aarch64__) || defined(_M_ARM64) || (defined(__arm__) && defined(__ARM_NEON))
+-	#include "sse2neon.h"
+-	// sse2neon exports _rdtsc (MSVC-style). GCC code uses the __rdtsc spelling.
+-	#define __rdtsc _rdtsc
+-#else
+-	#include <smmintrin.h>
+-	#include <xmmintrin.h>
+-#endif
+-
+-
+-#ifdef _WIN32 // WINDOWS
+-	// Define __func__ on VS less than 2015
+-	#if _MSC_VER < 1900
+-		#define __func__ __FUNCTION__
+-	#endif
+-
+-	#define _CRT_SECURE_NO_WARNINGS
+-	#define WIN32_LEAN_AND_MEAN
+-
+-	#ifndef CDECL
+-		#define CDECL __cdecl
+-	#endif
+-	#define FASTCALL __fastcall
+-	#define STDCALL __stdcall
+-	#define HIDDEN
+-	#define FORCEINLINE __forceinline
+-	#define NOINLINE __declspec(noinline)
+-	#define ALIGN16 __declspec(align(16))
+-	#define NORETURN __declspec(noreturn)
+-	#define FORCE_STACK_ALIGN
+-	#define FUNC_TARGET(x)
+-
+-	#define __builtin_bswap16 _byteswap_ushort
+-	#define __builtin_bswap32 _byteswap_ulong
+-	#define __builtin_bswap64 _byteswap_uint64
+-
+-	//inline bool SOCKET_FIONBIO(SOCKET s, int m) { return (ioctlsocket(s, FIONBIO, (u_long*)&m) == 0); }
+-	//inline int SOCKET_MSGLEN(SOCKET s, u_long& r) { return ioctlsocket(s, FIONREAD, (u_long*)&r); }
+-	typedef int socklen_t;
+-	#define SOCKET_FIONBIO(s, m) ioctlsocket(s, FIONBIO, (u_long*)&m)
+-	#define SOCKET_MSGLEN(s, r) ioctlsocket(s, FIONREAD, (u_long*)&r)
+-	#define SIN_GET_ADDR(saddr, r) r = (saddr)->S_un.S_addr
+-	#define SIN_SET_ADDR(saddr, r) (saddr)->S_un.S_addr = (r)
+-	#define SOCKET_CLOSE(s) closesocket(s)
+-	#define SOCKET_AGAIN() (WSAGetLastError() == WSAEWOULDBLOCK)
+-
+-	inline void* sys_allocmem(unsigned int size) {
+-		return VirtualAlloc(NULL, size, MEM_COMMIT, PAGE_READWRITE);
+-	}
+-
+-	inline void sys_freemem(void* ptr, unsigned int size) {
+-		VirtualFree(ptr, 0, MEM_RELEASE);
+-	}
+-#else // _WIN32
+-	#if !defined(__aarch64__) && !defined(__arm__)
+-		#include <x86intrin.h>
+-	#endif
+-
+-	#ifndef PAGESIZE
+-		#define PAGESIZE 4096
+-	#endif
+-	#define ALIGN(addr) (size_t)((size_t)addr & ~(PAGESIZE-1))
+-	#define ARRAYSIZE(p) (sizeof(p)/sizeof(p[0]))
+-
+-	#define _MAX_FNAME NAME_MAX
+-	#define MAX_PATH 260
+-
+-	typedef void *HWND;
+-
+-	typedef unsigned long DWORD;
+-	typedef unsigned short WORD;
+-	typedef unsigned int UNINT32;
+-
+-	#define FASTCALL
+-	#define CDECL __attribute__ ((cdecl))
+-	#define STDCALL __attribute__ ((stdcall))
+-	#define HIDDEN __attribute__((visibility("hidden")))
+-	#define FORCEINLINE inline
+-	#define NOINLINE __attribute__((noinline))
+-	#define ALIGN16 __attribute__((aligned(16)))
+-	#define NORETURN __attribute__((noreturn))
+-	#define FORCE_STACK_ALIGN __attribute__((force_align_arg_pointer))
+-
+-#if defined __INTEL_COMPILER
+-	#define FUNC_TARGET(x)
+-
+-	#define __builtin_bswap16 _bswap16
+-	#define __builtin_bswap32 _bswap
+-	#define __builtin_bswap64 _bswap64
+-#elif defined(__aarch64__) || defined(_M_ARM64) || defined(__arm__)
+-	// gcc on aarch64 doesn't accept x86 target attrs (sse4.1, ssse3, etc.).
+-	// SSE-tagged inlines fall through to plain code; sse2neon emulates intrinsics.
+-	#define FUNC_TARGET(x)
+-#else
+-	#define FUNC_TARGET(x) __attribute__((target(x)))
+-#endif // __INTEL_COMPILER
+-
+-	//inline bool SOCKET_FIONBIO(SOCKET s, int m) { return (ioctl(s, FIONBIO, (int*)&m) == 0); }
+-	//inline int SOCKET_MSGLEN(SOCKET s, u_long& r) { return ioctl(s, FIONREAD, (int*)&r); }
+-	typedef int SOCKET;
+-	#define INVALID_SOCKET (SOCKET)(~0)
+-	#define SOCKET_FIONBIO(s, m) ioctl(s, FIONBIO, (char*)&m)
+-	#define SOCKET_MSGLEN(s, r) ioctl(s, FIONREAD, (char*)&r)
+-	#define SIN_GET_ADDR(saddr, r) r = (saddr)->s_addr
+-	#define SIN_SET_ADDR(saddr, r) (saddr)->s_addr = (r)
+-	#define SOCKET_CLOSE(s) close(s)
+-	#define SOCKET_AGAIN() (errno == EAGAIN)
+-	#define SOCKET_ERROR -1
+-
+-	inline int ioctlsocket(int fd, int cmd, unsigned int *argp) { return ioctl(fd, cmd, argp); }
+-	inline int closesocket(int fd) { return close(fd); }
+-	inline int WSAGetLastError() { return errno; }
+-
+-	inline void* sys_allocmem(unsigned int size) {
+-		return mmap(NULL, size, PROT_READ | PROT_WRITE, MAP_PRIVATE | MAP_ANONYMOUS, -1, 0);
+-	}
+-	inline void sys_freemem(void* ptr, unsigned int size) {
+-		munmap(ptr, size);
+-	}
+-
+-	#define WSAENOPROTOOPT ENOPROTOOPT
+-
+-	#ifndef FALSE
+-	#define FALSE	0
+-	#endif
+-	#ifndef TRUE
+-	#define TRUE	1
+-	#endif
+-#endif // _WIN32
+-
+-#ifdef _WIN32
+-	static const bool __isWindows = true;
+-	static const bool __isLinux = false;
+-#else
+-	static const bool __isWindows = false;
+-	static const bool __isLinux = true;
+-#endif
+-
+-#define EXT_FUNC FORCE_STACK_ALIGN
+-
+-// Used to obtain the string name of a variable.
+-#define nameof_variable(name) template_nameof_variable(name, #name)
+-template <typename T> const char* template_nameof_variable(const T& /*validate_type*/, const char* name) { return name; }
+-
+-#endif // _OSCONFIG_H
++/*
++*
++*    This program is free software; you can redistribute it and/or modify it
++*    under the terms of the GNU General Public License as published by the
++*    Free Software Foundation; either version 2 of the License, or (at
++*    your option) any later version.
++*
++*    This program is distributed in the hope that it will be useful, but
++*    WITHOUT ANY WARRANTY; without even the implied warranty of
++*    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
++*    General Public License for more details.
++*
++*    You should have received a copy of the GNU General Public License
++*    along with this program; if not, write to the Free Software Foundation,
++*    Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
++*
++*    In addition, as a special exception, the author gives permission to
++*    link the code of this program with the Half-Life Game Engine ("HL
++*    Engine") and Modified Game Libraries ("MODs") developed by Valve,
++*    L.L.C ("Valve").  You must obey the GNU General Public License in all
++*    respects for all of the code used other than the HL Engine and MODs
++*    from Valve.  If you modify this file, you may extend this exception
++*    to your version of the file, but you are not obligated to do so.  If
++*    you do not wish to do so, delete this exception statement from your
++*    version.
++*
++*/
++
++#ifndef _OSCONFIG_H
++#define _OSCONFIG_H
++
++#if defined(__BIONIC__) && !defined(RTLD_DEEPBIND)
++// bionic has no RTLD_DEEPBIND (its linker doesn't support the semantics);
++// plain RTLD_LOCAL is functionally equivalent for our dlopen uses
++#define RTLD_DEEPBIND 0
++#endif
++
++#ifdef _WIN32 // WINDOWS
++	#pragma warning(disable : 4005)
++#endif // _WIN32
++
++#include <stdio.h>
++#include <stdlib.h>
++#include <stdarg.h>
++#include <stddef.h>
++#include <string.h>
++#include <time.h>
++#include <math.h>
++#include <setjmp.h>
++#include <assert.h>
++
++#include <algorithm>
++#include <deque>
++#include <functional>
++
++#ifdef _WIN32 // WINDOWS
++	#define WIN32_LEAN_AND_MEAN // Exclude rarely-used stuff from Windows headers
++	#include <windows.h>
++	#include <winsock.h>
++	#include <wsipx.h> // for support IPX
++	#define PSAPI_VERSION 1
++	#include <psapi.h>
++	#include <nmmintrin.h>
++	#include <fcntl.h>
++	#include <sys/types.h>
++	#include <sys/stat.h>
++	#include <io.h>
++#else // _WIN32
++	#include <arpa/inet.h>
++	#include <ctype.h>
++	//#include <dirent.h>
++	#include <dlfcn.h>
++	#include <elf.h>
++	#include <errno.h>
++	#include <fcntl.h>
++	#include <limits.h>
++	#include <link.h>
++	#include <netdb.h>
++	#include <netinet/in.h>
++	#include <netinet/ip.h>
++	#include <pthread.h>
++	#include <sys/ioctl.h>
++	#include <sys/mman.h>
++	#include <sys/socket.h>
++	#include <sys/stat.h>
++	#include <sys/time.h>
++	#include <sys/types.h>
++	#include <sys/sysinfo.h>
++	#include <unistd.h>
++#endif // _WIN32
++
++#include <string>
++#include <sstream>
++#include <fstream>
++#include <iomanip>
++
++#if defined(__aarch64__) || defined(_M_ARM64) || (defined(__arm__) && defined(__ARM_NEON))
++	#include "sse2neon.h"
++	// sse2neon exports _rdtsc (MSVC-style). GCC code uses the __rdtsc spelling.
++	#define __rdtsc _rdtsc
++#else
++	#include <smmintrin.h>
++	#include <xmmintrin.h>
++#endif
++
++
++#ifdef _WIN32 // WINDOWS
++	// Define __func__ on VS less than 2015
++	#if _MSC_VER < 1900
++		#define __func__ __FUNCTION__
++	#endif
++
++	#define _CRT_SECURE_NO_WARNINGS
++	#define WIN32_LEAN_AND_MEAN
++
++	#ifndef CDECL
++		#define CDECL __cdecl
++	#endif
++	#define FASTCALL __fastcall
++	#define STDCALL __stdcall
++	#define HIDDEN
++	#define FORCEINLINE __forceinline
++	#define NOINLINE __declspec(noinline)
++	#define ALIGN16 __declspec(align(16))
++	#define NORETURN __declspec(noreturn)
++	#define FORCE_STACK_ALIGN
++	#define FUNC_TARGET(x)
++
++	#define __builtin_bswap16 _byteswap_ushort
++	#define __builtin_bswap32 _byteswap_ulong
++	#define __builtin_bswap64 _byteswap_uint64
++
++	//inline bool SOCKET_FIONBIO(SOCKET s, int m) { return (ioctlsocket(s, FIONBIO, (u_long*)&m) == 0); }
++	//inline int SOCKET_MSGLEN(SOCKET s, u_long& r) { return ioctlsocket(s, FIONREAD, (u_long*)&r); }
++	typedef int socklen_t;
++	#define SOCKET_FIONBIO(s, m) ioctlsocket(s, FIONBIO, (u_long*)&m)
++	#define SOCKET_MSGLEN(s, r) ioctlsocket(s, FIONREAD, (u_long*)&r)
++	#define SIN_GET_ADDR(saddr, r) r = (saddr)->S_un.S_addr
++	#define SIN_SET_ADDR(saddr, r) (saddr)->S_un.S_addr = (r)
++	#define SOCKET_CLOSE(s) closesocket(s)
++	#define SOCKET_AGAIN() (WSAGetLastError() == WSAEWOULDBLOCK)
++
++	inline void* sys_allocmem(unsigned int size) {
++		return VirtualAlloc(NULL, size, MEM_COMMIT, PAGE_READWRITE);
++	}
++
++	inline void sys_freemem(void* ptr, unsigned int size) {
++		VirtualFree(ptr, 0, MEM_RELEASE);
++	}
++#else // _WIN32
++	#if !defined(__aarch64__) && !defined(__arm__)
++		#include <x86intrin.h>
++	#endif
++
++	#ifndef PAGESIZE
++		#define PAGESIZE 4096
++	#endif
++	#define ALIGN(addr) (size_t)((size_t)addr & ~(PAGESIZE-1))
++	#define ARRAYSIZE(p) (sizeof(p)/sizeof(p[0]))
++
++	#define _MAX_FNAME NAME_MAX
++	#define MAX_PATH 260
++
++	typedef void *HWND;
++
++	typedef unsigned long DWORD;
++	typedef unsigned short WORD;
++	typedef unsigned int UNINT32;
++
++	#define FASTCALL
++	#define CDECL __attribute__ ((cdecl))
++	#define STDCALL __attribute__ ((stdcall))
++	#define HIDDEN __attribute__((visibility("hidden")))
++	#define FORCEINLINE inline
++	#define NOINLINE __attribute__((noinline))
++	#define ALIGN16 __attribute__((aligned(16)))
++	#define NORETURN __attribute__((noreturn))
++	#define FORCE_STACK_ALIGN __attribute__((force_align_arg_pointer))
++
++#if defined __INTEL_COMPILER
++	#define FUNC_TARGET(x)
++
++	#define __builtin_bswap16 _bswap16
++	#define __builtin_bswap32 _bswap
++	#define __builtin_bswap64 _bswap64
++#elif defined(__aarch64__) || defined(_M_ARM64) || defined(__arm__)
++	// gcc on aarch64 doesn't accept x86 target attrs (sse4.1, ssse3, etc.).
++	// SSE-tagged inlines fall through to plain code; sse2neon emulates intrinsics.
++	#define FUNC_TARGET(x)
++#else
++	#define FUNC_TARGET(x) __attribute__((target(x)))
++#endif // __INTEL_COMPILER
++
++	//inline bool SOCKET_FIONBIO(SOCKET s, int m) { return (ioctl(s, FIONBIO, (int*)&m) == 0); }
++	//inline int SOCKET_MSGLEN(SOCKET s, u_long& r) { return ioctl(s, FIONREAD, (int*)&r); }
++	typedef int SOCKET;
++	#define INVALID_SOCKET (SOCKET)(~0)
++	#define SOCKET_FIONBIO(s, m) ioctl(s, FIONBIO, (char*)&m)
++	#define SOCKET_MSGLEN(s, r) ioctl(s, FIONREAD, (char*)&r)
++	#define SIN_GET_ADDR(saddr, r) r = (saddr)->s_addr
++	#define SIN_SET_ADDR(saddr, r) (saddr)->s_addr = (r)
++	#define SOCKET_CLOSE(s) close(s)
++	#define SOCKET_AGAIN() (errno == EAGAIN)
++	#define SOCKET_ERROR -1
++
++	inline int ioctlsocket(int fd, int cmd, unsigned int *argp) { return ioctl(fd, cmd, argp); }
++	inline int closesocket(int fd) { return close(fd); }
++	inline int WSAGetLastError() { return errno; }
++
++	inline void* sys_allocmem(unsigned int size) {
++		return mmap(NULL, size, PROT_READ | PROT_WRITE, MAP_PRIVATE | MAP_ANONYMOUS, -1, 0);
++	}
++	inline void sys_freemem(void* ptr, unsigned int size) {
++		munmap(ptr, size);
++	}
++
++	#define WSAENOPROTOOPT ENOPROTOOPT
++
++	#ifndef FALSE
++	#define FALSE	0
++	#endif
++	#ifndef TRUE
++	#define TRUE	1
++	#endif
++#endif // _WIN32
++
++#ifdef _WIN32
++	static const bool __isWindows = true;
++	static const bool __isLinux = false;
++#else
++	static const bool __isWindows = false;
++	static const bool __isLinux = true;
++#endif
++
++#define EXT_FUNC FORCE_STACK_ALIGN
++
++// Used to obtain the string name of a variable.
++#define nameof_variable(name) template_nameof_variable(name, #name)
++template <typename T> const char* template_nameof_variable(const T& /*validate_type*/, const char* name) { return name; }
++
++#endif // _OSCONFIG_H
 -- 
 2.56.1
 
