@@ -37,9 +37,6 @@ rehlds-bionic-aarch64 FAILED
 + rm -rf build/reunion-bionic-aarch64
 + cmake -S src/ReUnion/reunion -B build/reunion-bionic-aarch64 -DCMAKE_TOOLCHAIN_FILE=/home/noname/my-project/cs16-arm-release/build/toolchain-bionic-aarch64.cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_POLICY_VERSION_MINIMUM=3.5 -DUSE_STATIC_LIBSTDC=OFF
 + cmake --build build/reunion-bionic-aarch64 -j4
-+ echo 'reunion-bionic-aarch64 FAILED'
-reunion-bionic-aarch64 FAILED
-+ fail=1
 + mkdir -p build/rehlmaster-bionic-aarch64
 + /home/noname/android/ndk/toolchains/llvm/prebuilt/linux-x86_64/bin/aarch64-linux-android24-clang++ -std=c++11 -w -O3 -s -shared -fno-stack-protector -fno-strict-aliasing -fno-strict-overflow -fvisibility=hidden -fPIC -Isrc/rehlmaster/src -Isrc/rehlmaster/dep/rehlsdk/common -Isrc/rehlmaster/dep/rehlsdk/dlls -Isrc/rehlmaster/dep/rehlsdk/engine -Isrc/rehlmaster/dep/rehlsdk/public -Isrc/rehlmaster/dep/metamod src/rehlmaster/src/dllapi.cpp src/rehlmaster/src/engine_api.cpp src/rehlmaster/src/ex_rehlds_api.cpp src/rehlmaster/src/h_export.cpp src/rehlmaster/src/meta_api.cpp src/rehlmaster/src/public_amalgamation.cpp src/rehlmaster/src/rehlmaster.cpp src/rehlmaster/src/server_info.cpp src/rehlmaster/src/sizebuf.cpp src/rehlmaster/src/utils.cpp -o build/rehlmaster-bionic-aarch64/rehlmaster.so
 + mkdir -p build/hlmaster-bionic-aarch64
@@ -71,9 +68,6 @@ rehlds-bionic-armv7 FAILED
 + rm -rf build/reunion-bionic-armv7
 + cmake -S src/ReUnion/reunion -B build/reunion-bionic-armv7 -DCMAKE_TOOLCHAIN_FILE=/home/noname/my-project/cs16-arm-release/build/toolchain-bionic-armv7.cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_POLICY_VERSION_MINIMUM=3.5 -DUSE_STATIC_LIBSTDC=OFF
 + cmake --build build/reunion-bionic-armv7 -j4
-+ echo 'reunion-bionic-armv7 FAILED'
-reunion-bionic-armv7 FAILED
-+ fail=1
 + mkdir -p build/rehlmaster-bionic-armv7
 + /home/noname/android/ndk/toolchains/llvm/prebuilt/linux-x86_64/bin/armv7a-linux-androideabi24-clang++ -std=c++11 -w -O3 -s -shared -fno-stack-protector -fno-strict-aliasing -fno-strict-overflow -fvisibility=hidden -fPIC -Isrc/rehlmaster/src -Isrc/rehlmaster/dep/rehlsdk/common -Isrc/rehlmaster/dep/rehlsdk/dlls -Isrc/rehlmaster/dep/rehlsdk/engine -Isrc/rehlmaster/dep/rehlsdk/public -Isrc/rehlmaster/dep/metamod src/rehlmaster/src/dllapi.cpp src/rehlmaster/src/engine_api.cpp src/rehlmaster/src/ex_rehlds_api.cpp src/rehlmaster/src/h_export.cpp src/rehlmaster/src/meta_api.cpp src/rehlmaster/src/public_amalgamation.cpp src/rehlmaster/src/rehlmaster.cpp src/rehlmaster/src/server_info.cpp src/rehlmaster/src/sizebuf.cpp src/rehlmaster/src/utils.cpp -o build/rehlmaster-bionic-armv7/rehlmaster.so
 + mkdir -p build/hlmaster-bionic-armv7
