@@ -21,3 +21,5 @@ tools/smoketest/steamclient_stub-armv7.so
 
 # qemu snapshot (optional local convenience)
 tools/qemu/
+dist-bionic/
+build-logs-*.txt
