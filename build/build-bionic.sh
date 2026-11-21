@@ -33,7 +33,7 @@ build_cmake regamedll-bionic-aarch64 src/ReGameDLL_CS          build/regamedll-b
 build_cmake reunion-bionic-aarch64 src/ReUnion/reunion         build/reunion-bionic-aarch64 $TCA
 
 mkdir -p build/rehlmaster-bionic-aarch64
-$ANDROID_NDK/toolchains/llvm/prebuilt/linux-x86_64/bin/aarch64-linux-android24-clang++ -std=c++11 -w -O3 -s -shared \
+$ANDROID_NDK/toolchains/llvm/prebuilt/linux-x86_64/bin/aarch64-linux-android24-clang++ -std=c++11 -w -O3 -s -shared -static-libstdc++ \
   -fno-stack-protector -fno-strict-aliasing -fno-strict-overflow -fvisibility=hidden -fPIC \
   -Isrc/rehlmaster/src \
   -Isrc/rehlmaster/dep/rehlsdk/common -Isrc/rehlmaster/dep/rehlsdk/dlls -Isrc/rehlmaster/dep/rehlsdk/engine -Isrc/rehlmaster/dep/rehlsdk/public \
@@ -54,7 +54,7 @@ build_cmake regamedll-bionic-armv7 src/ReGameDLL_CS            build/regamedll-b
 build_cmake reunion-bionic-armv7  src/ReUnion/reunion          build/reunion-bionic-armv7   $TCV
 
 mkdir -p build/rehlmaster-bionic-armv7
-$ANDROID_NDK/toolchains/llvm/prebuilt/linux-x86_64/bin/armv7a-linux-androideabi24-clang++ -std=c++11 -w -O3 -s -shared \
+$ANDROID_NDK/toolchains/llvm/prebuilt/linux-x86_64/bin/armv7a-linux-androideabi24-clang++ -std=c++11 -w -O3 -s -shared -static-libstdc++ \
   -fno-stack-protector -fno-strict-aliasing -fno-strict-overflow -fvisibility=hidden -fPIC \
   -Isrc/rehlmaster/src \
   -Isrc/rehlmaster/dep/rehlsdk/common -Isrc/rehlmaster/dep/rehlsdk/dlls -Isrc/rehlmaster/dep/rehlsdk/engine -Isrc/rehlmaster/dep/rehlsdk/public \
